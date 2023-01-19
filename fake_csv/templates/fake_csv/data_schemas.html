@@ -1,0 +1,35 @@
+{% extends 'fake_csv/basic.html' %}
+
+{% block title %}Data sets{% endblock %}
+
+{% block content %}
+
+    {% include 'fake_csv/header.html' %}
+
+    <div class="container is-fluid">
+        <div class="section">
+            <div class="columns">
+                <div class="column is-1">
+                </div>
+                <div class="column">
+                    <div class="control field is-grouped is-grouped-right">
+                        <div class="column">
+                            <h1 class="title is-3">Data schemas</h1>
+                        </div>
+                        <div class="column">
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-2">
+                    <a class="button is-primary" href="../newschema/">New schema</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            {% include 'fake_csv/table.html' %}
+        </div>
+
+    </div>
+
+{% endblock %}

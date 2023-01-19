@@ -1,0 +1,32 @@
+{% extends 'fake_csv/basic.html' %}
+
+{% block title %}Data sets{% endblock %}
+
+{% block content %}
+
+    <div class="container is-max-desktop container_form">
+        <div class="notification">
+            <form class="box">
+                <div class="field is-grouped is-grouped-centered">
+                    <h1 class="title is-1">Login</h1>
+                </div>
+
+                <div class="field">
+                    <p class="control">
+                        <input class="input is-success" type="text" placeholder="Text input" value="Login">
+                    </p>
+                </div>
+                <div class="field">
+                    <p class="control">
+                        <input class="input is-success" type="password" placeholder="Text input" value="Password">
+                    </p>
+                </div>
+
+                <div class="control field is-grouped is-grouped-right">
+                    <button class="button is-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
