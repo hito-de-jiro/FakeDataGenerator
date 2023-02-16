@@ -1,20 +1,18 @@
-<nav class="navbar is-light" role="navigation" aria-label="main navigation">
-    <div class="column is-1"></div>
-    <div class="navbar-brand">
-        <a class="navbar-item" href="{% url 'data_schemas' %}">
-            <h1 class="title is-3">FakerCSV</h1>
-        </a>
-    </div>
-    <div id="navbarBasicExample" class="navbar-menu">
-        <div class="navbar-start">
-            <a class="navbar-item" href="{% url 'data_schemas' %}">Schemas</a>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
+    <a class="navbar-brand" href="{% url 'schema_list' %}"><h1>FakerCSV</h1></a>
+
+    <div class="collapse navbar-collapse" id="navbarsExample09">
+
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'schema_list' %}">Schemas<span class="sr-only"></span></a>
+            </li>
+        </ul>
+
+        <div class="my-2 my-md-0">
+            <span>Hello, User</span>
+            <a href="#">Log Out</a>
         </div>
-        <div class="navbar-end">
-            <div class="navbar-item">
-                <div>Hello, username</div>
-                <a class="navbar-item" href="#">Log out</a>
-            </div>
-        </div>
     </div>
-    <div class="column is-1"></div>
 </nav>

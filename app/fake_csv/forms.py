@@ -10,7 +10,7 @@ class SchemaForm(ModelForm):
         widgets = {
             'name_schema': TextInput(
                 attrs={
-                    'class': 'input is-primary',
+                    'class': 'form-group col-md-6',
                 }
             ),
             'column_separator': Select(
@@ -31,23 +31,24 @@ class ColumnForm(ModelForm):
     class Meta:
         model = ColumnModel
         fields = '__all__'
-        widgets = {
-            'column_name': TextInput(attrs={
-                'class': 'input is-primary',
-            }),
-            'column_type': Select(attrs={
-                'class': 'select is-primary',
-            }),
-            'range_from': NumberInput(attrs={
-                'class': 'input is-primary',
-            }),
-            'range_to': NumberInput(attrs={
-                'class': 'input is-primary',
-            }),
-            'order': NumberInput(attrs={
-                'class': 'input is-primary',
-            }),
-        }
+        # INPUT_CLASS = 'input is-primary'
+        # widgets = {
+        #     'name': TextInput(attrs={
+        #         'class': INPUT_CLASS,
+        #     }),
+        #     'type': Select(attrs={
+        #         'class': 'select is-primary',
+        #     }),
+        #     'range_from': NumberInput(attrs={
+        #         'class': INPUT_CLASS,
+        #     }),
+        #     'range_to': NumberInput(attrs={
+        #         'class': INPUT_CLASS,
+        #     }),
+        #     'order': NumberInput(attrs={
+        #         'class': INPUT_CLASS,
+        #     }),
+        # }
 
 
 AddColumnFormSet = inlineformset_factory(

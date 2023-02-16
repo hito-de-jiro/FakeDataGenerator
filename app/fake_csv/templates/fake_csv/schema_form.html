@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% include 'fake_csv/header.html' %}
+    <form id="form-container" method="post">
+        {% csrf_token %}
+        {{ columns.management_form }}
+        <h2>New schema</h2>
+        {{ form.as_p }}
+        <h2>Schema columns</h2>
+
+        {% for cform in columns %}
+            <div class="column-form">
+                {{ cform.as_table }}
+            </div>
+        {% endfor %}
+        <button id="add-form" type="button">Add column</button>
+        <button type="submit">Save</button>
+
+    </form>
+
+
+    <script>
+        let columnForm = document.querySelectorAll(".column-form")
+        let container = document.querySelector("#form-container")
+        let addButton = document.querySelector("#add-form")
+        let totalForms = document.querySelector("#id_columnmodel_set-TOTAL_FORMS")
+
+        let formNum = columnForm.length - 1 //Get the number of the last form on the page with zero-based indexing
+        addButton.addEventListener('click', addForm)
+
+        function addForm(e) {
+            e.preventDefault()
+
+            let newForm = columnForm[0].cloneNode(true) //Clone the bird form
+            let formRegex = RegExp(`columnmodel_set-(\\d){1}-`, 'g') //Regex to find all instances of the form number
+
+            formNum++ //Increment the form number
+            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `columnmodel_set-${formNum}-`) //Update the new form to have the correct form number
+            container.insertBefore(newForm, addButton) //Insert the new form at the end of the list of forms
+
+            totalForms.setAttribute('value', `${formNum + 1}`) //Increment the number of total forms in the form management
+        }
+    </script>
+
+{% endblock %}
