@@ -35,13 +35,14 @@ class ColumnModel(models.Model):
     name = models.CharField(max_length=45, verbose_name='Column name')
     TYPE_COLUMN = (
         ('fullname', 'Full name'),
-        ('age', 'Age'),
+        ('integer', 'Integer'),
         ('phone', 'Phone'),
         ('email', 'E-mail'),
         ('address', 'Address'),
     )
     type = models.CharField(max_length=45,
                             verbose_name='Column type',
+                            default='fullname',
                             choices=TYPE_COLUMN)
     range_from = models.PositiveSmallIntegerField(default=18, verbose_name='From')
     range_to = models.PositiveSmallIntegerField(default=60, verbose_name='To')

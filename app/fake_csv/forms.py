@@ -7,16 +7,17 @@ class SchemaForm(ModelForm):
     class Meta:
         model = SchemaModel
         fields = '__all__'
+
         widgets = {
             'name_schema': TextInput(
                 attrs={
-                    'class': 'form-group col-md-6',
+                    'class': 'name_schema',
                 }
             ),
             'column_separator': Select(
                 attrs={
-                    'class': 'select is-primary',
-                    'id': 'id_column_separator',
+                    'class': 'column_separator',
+
                 }
             ),
             'string_character': Select(
@@ -31,24 +32,28 @@ class ColumnForm(ModelForm):
     class Meta:
         model = ColumnModel
         fields = '__all__'
-        # INPUT_CLASS = 'input is-primary'
-        # widgets = {
-        #     'name': TextInput(attrs={
-        #         'class': INPUT_CLASS,
-        #     }),
-        #     'type': Select(attrs={
-        #         'class': 'select is-primary',
-        #     }),
-        #     'range_from': NumberInput(attrs={
-        #         'class': INPUT_CLASS,
-        #     }),
-        #     'range_to': NumberInput(attrs={
-        #         'class': INPUT_CLASS,
-        #     }),
-        #     'order': NumberInput(attrs={
-        #         'class': INPUT_CLASS,
-        #     }),
-        # }
+
+        widgets = {
+            'name': TextInput(attrs={
+                'class': 'name_column',
+            }),
+            'type': Select(attrs={
+                'class': 'type_column',
+            }),
+            'range_from': NumberInput(attrs={
+                'class': 'range_from',
+                # 'style': 'visibility: hidden',
+            },
+            ),
+            'range_to': NumberInput(attrs={
+                'class': 'range_to',
+                # 'style': 'visibility: hidden',
+            }),
+            'order': NumberInput(attrs={
+                'class': 'order_column',
+            }),
+        }
+
 
 
 AddColumnFormSet = inlineformset_factory(
