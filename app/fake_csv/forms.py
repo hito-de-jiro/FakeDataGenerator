@@ -1,5 +1,11 @@
-from django.forms import ModelForm, TextInput, Select, NumberInput, inlineformset_factory
-
+from django import forms
+from django.forms import (
+    ModelForm,
+    TextInput,
+    Select,
+    NumberInput,
+    inlineformset_factory,
+)
 from .models import SchemaModel, ColumnModel
 
 
@@ -55,8 +61,12 @@ class ColumnForm(ModelForm):
         }
 
 
-
 AddColumnFormSet = inlineformset_factory(
     SchemaModel, ColumnModel, form=ColumnForm,
     extra=1, can_delete=True, can_delete_extra=True
 )
+
+
+class LoginForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)

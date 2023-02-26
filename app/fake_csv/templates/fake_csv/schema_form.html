@@ -2,13 +2,13 @@
 
 {% block content %}
     {% include 'fake_csv/header.html' %}
+
     <form id="form-container" method="post">
         {% csrf_token %}
-        {{ columns.management_form }}  // TODO
+        {{ columns.management_form }}
         <h2>New schema</h2>
         {{ form.as_p }}
         <h2>Schema columns</h2>
-
         {% for cform in columns %}
             <div class="column-form">
                 {{ cform.as_table }}
@@ -19,45 +19,23 @@
 
     </form>
     <script>
-        let columnForm = document.querySelectorAll(".column-form")
-        let container = document.querySelector("#form-container")
-        let addButton = document.querySelector("#add-form")
-        let totalForms = document.querySelector("#id_columnmodel_set-TOTAL_FORMS")
-
-        let formNum = columnForm.length - 1 // Get the number of the last form on the page with zero-based indexing
-        addButton.addEventListener('click', addForm)
-
-        function addForm(e) {
-            e.preventDefault()
-
-            // Clone first form
-            let newForm = columnForm[0].cloneNode(true)
-
-            // Update indexes
-            let formRegex = RegExp(`columnmodel_set-(\\d){1}-`, 'g')
-            formNum++
-
-            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `columnmodel_set-${formNum}-`)
-
-            // Add event to column type
-            let type_id = `id_columnmodel_set-${formNum}-type`
-            document.getElementById(type_id).addEventListener("change", columnTypeChangeCallback);
-
-            // Insert form in page
-            container.insertBefore(newForm, addButton)  // TODO
-
-            // Update total forms count
-            totalForms.setAttribute('value', `${formNum + 1}`)  // TODO
+        // Hide column 'from', 'to' and them 'label' if value not 'integer'
+        function hideRangeColumn() {
+            document.getElementById('id_columnmodel_set-0-range_from').style.visibility = "hidden";
+            document.querySelector("label[for='id_columnmodel_set-0-range_from']").style.visibility = "hidden";
+            document.getElementById('id_columnmodel_set-0-range_to').style.visibility = "hidden";
+            document.querySelector("label[for='id_columnmodel_set-0-range_to']").style.visibility = "hidden";
         }
+        hideRangeColumn()
 
         function columnTypeChangeCallback(event) {
             let type_id = event.target.id;
+            console.log(event.target)
             let from_id = type_id.replace('type', 'range_from');
             let to_id = type_id.replace('type', 'range_to');
-
             let label_from = document.querySelector("label[for='" + from_id + "']")
-            let input_from = document.getElementById(from_id)
 
+            let input_from = document.getElementById(from_id)
             let label_to = document.querySelector("label[for='" + to_id + "']")
             let input_to = document.getElementById(to_id)
 
@@ -76,7 +54,41 @@
 
         // Add event to column type in first form
         let type_id = 'id_columnmodel_set-0-type'
-        document.getElementById(type_id).addEventListener("change", columnTypeChangeCallback);
+        let id_elem = document.getElementById(type_id)
+        id_elem.addEventListener("change", columnTypeChangeCallback);
+
+        //----------------------------------------------------------------------------------------//
+        let columnForm = document.querySelectorAll(".column-form")
+        let container = document.querySelector("#form-container")
+        let addButton = document.querySelector("#add-form")
+        let totalForms = document.querySelector("#id_columnmodel_set-TOTAL_FORMS")
+
+        let formNum = columnForm.length - 1 // Get the number of the last form on the page with zero-based indexing
+        addButton.addEventListener('click', addForm);
+
+        function addForm(e) {
+            e.preventDefault()
+
+            // Clone first form
+            let newForm = columnForm[0].cloneNode(true)
+
+            // Update indexes
+            let formRegex = RegExp(`columnmodel_set-(\\d){1}-`, 'g')
+            formNum++
+
+            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `columnmodel_set-${formNum}-`)
+
+            // Insert form in page
+            container.insertBefore(newForm, addButton)  // TODO
+
+            // Update total forms count
+            totalForms.setAttribute('value', `${formNum + 1}`)  // TODO
+
+            // Add event to column type
+            let type_id = `id_columnmodel_set-${formNum}-type`
+            document.getElementById(type_id).addEventListener("change", columnTypeChangeCallback);
+        }
+
     </script>
 
 {% endblock %}
