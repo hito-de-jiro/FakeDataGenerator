@@ -19,18 +19,14 @@
 
     </form>
     <script>
-        // Hide column 'from', 'to' and them 'label' if value not 'integer'
-        function hideRangeColumn() {
-            document.getElementById('id_columnmodel_set-0-range_from').style.visibility = "hidden";
-            document.querySelector("label[for='id_columnmodel_set-0-range_from']").style.visibility = "hidden";
-            document.getElementById('id_columnmodel_set-0-range_to').style.visibility = "hidden";
-            document.querySelector("label[for='id_columnmodel_set-0-range_to']").style.visibility = "hidden";
-        }
-        hideRangeColumn()
-
         function columnTypeChangeCallback(event) {
-            let type_id = event.target.id;
-            console.log(event.target)
+            event.preventDefault()
+
+            columnTypeChange(columnType = event.target)
+        }
+
+        function columnTypeChange(columnType) {
+            let type_id = columnType.id;
             let from_id = type_id.replace('type', 'range_from');
             let to_id = type_id.replace('type', 'range_to');
             let label_from = document.querySelector("label[for='" + from_id + "']")
@@ -39,7 +35,7 @@
             let label_to = document.querySelector("label[for='" + to_id + "']")
             let input_to = document.getElementById(to_id)
 
-            if (event.target.value !== 'integer') {
+            if (columnType.value !== 'integer') {
                 label_from.style.visibility = "hidden";
                 input_from.style.visibility = "hidden";
                 label_to.style.visibility = "hidden";
@@ -54,8 +50,9 @@
 
         // Add event to column type in first form
         let type_id = 'id_columnmodel_set-0-type'
-        let id_elem = document.getElementById(type_id)
-        id_elem.addEventListener("change", columnTypeChangeCallback);
+        let columnType0 = document.getElementById(type_id)
+        columnType0.addEventListener("change", columnTypeChangeCallback);
+        columnTypeChange(columnType0)
 
         //----------------------------------------------------------------------------------------//
         let columnForm = document.querySelectorAll(".column-form")
@@ -85,8 +82,10 @@
             totalForms.setAttribute('value', `${formNum + 1}`)  // TODO
 
             // Add event to column type
-            let type_id = `id_columnmodel_set-${formNum}-type`
-            document.getElementById(type_id).addEventListener("change", columnTypeChangeCallback);
+            let type_id = `#id_columnmodel_set-${formNum}-type`
+            let newColumnType = newForm.querySelector(type_id)
+            newColumnType.addEventListener("change", columnTypeChangeCallback);
+            columnTypeChange(newColumnType)
         }
 
     </script>
