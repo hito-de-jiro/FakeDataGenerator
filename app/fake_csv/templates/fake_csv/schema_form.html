@@ -12,6 +12,7 @@
         {% for cform in columns %}
             <div class="column-form">
                 {{ cform.as_table }}
+                <a href="#" class="columnmodel_set-0-delete_column text-danger">delete</a>
             </div>
         {% endfor %}
         <button id="add-form" type="button">Add column</button>
@@ -19,6 +20,7 @@
 
     </form>
     <script>
+
         function columnTypeChangeCallback(event) {
             event.preventDefault()
 
@@ -52,6 +54,7 @@
         let type_id = 'id_columnmodel_set-0-type'
         let columnType0 = document.getElementById(type_id)
         columnType0.addEventListener("change", columnTypeChangeCallback);
+
         columnTypeChange(columnType0)
 
         //----------------------------------------------------------------------------------------//
@@ -59,12 +62,13 @@
         let container = document.querySelector("#form-container")
         let addButton = document.querySelector("#add-form")
         let totalForms = document.querySelector("#id_columnmodel_set-TOTAL_FORMS")
+        let elem_delete = document.querySelectorAll(".delete_column-0")
 
         let formNum = columnForm.length - 1 // Get the number of the last form on the page with zero-based indexing
         addButton.addEventListener('click', addForm);
 
-        function addForm(e) {
-            e.preventDefault()
+        function addForm(event) {
+            event.preventDefault()
 
             // Clone first form
             let newForm = columnForm[0].cloneNode(true)
@@ -76,10 +80,16 @@
             newForm.innerHTML = newForm.innerHTML.replace(formRegex, `columnmodel_set-${formNum}-`)
 
             // Insert form in page
-            container.insertBefore(newForm, addButton)  // TODO
+            container.insertBefore(newForm, addButton)
+
+            //---------------------------------------------------//
+            
+
+            //---------------------------------------------------//
 
             // Update total forms count
-            totalForms.setAttribute('value', `${formNum + 1}`)  // TODO
+            totalForms.setAttribute('value', `${formNum + 1}`)
+
 
             // Add event to column type
             let type_id = `#id_columnmodel_set-${formNum}-type`
