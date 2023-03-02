@@ -4,7 +4,7 @@ from django.forms import (
     TextInput,
     Select,
     NumberInput,
-    inlineformset_factory,
+    inlineformset_factory, HiddenInput, BaseFormSet, BaseInlineFormSet,
 )
 from .models import SchemaModel, ColumnModel
 

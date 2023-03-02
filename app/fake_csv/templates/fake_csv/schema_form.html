@@ -8,9 +8,11 @@
         {{ columns.management_form }}
         <h2>New schema</h2>
         {{ form.as_p }}
+        {{ form.errors }}
         <h2>Schema columns</h2>
         {% for cform in columns %}
             <div class="column-form">
+                {{ cform.errors }}
                 {{ cform.as_table }}
                 <a href="#" class="columnmodel_set-0-delete_column text-danger">delete</a>
             </div>
@@ -26,6 +28,13 @@
 
             columnTypeChange(columnType = event.target)
         }
+
+        function deleteColumnCallback(event) {
+                event.preventDefault()
+
+                this.parentElement.remove()
+                totalForms.setAttribute('value', `${formNum--}`)
+            }
 
         function columnTypeChange(columnType) {
             let type_id = columnType.id;
@@ -55,6 +64,9 @@
         let columnType0 = document.getElementById(type_id)
         columnType0.addEventListener("change", columnTypeChangeCallback);
 
+        // Add event for delete first column
+        document.querySelector('.columnmodel_set-0-delete_column').addEventListener('click', deleteColumnCallback);
+
         columnTypeChange(columnType0)
 
         //----------------------------------------------------------------------------------------//
@@ -82,11 +94,6 @@
             // Insert form in page
             container.insertBefore(newForm, addButton)
 
-            //---------------------------------------------------//
-            
-
-            //---------------------------------------------------//
-
             // Update total forms count
             totalForms.setAttribute('value', `${formNum + 1}`)
 
@@ -96,6 +103,11 @@
             let newColumnType = newForm.querySelector(type_id)
             newColumnType.addEventListener("change", columnTypeChangeCallback);
             columnTypeChange(newColumnType)
+
+            // Add event for delete column
+            let delete_selector = `.columnmodel_set-${formNum}-delete_column`
+            let delete_column = newForm.querySelector(delete_selector)
+            delete_column.addEventListener('click', deleteColumnCallback);
         }
 
     </script>

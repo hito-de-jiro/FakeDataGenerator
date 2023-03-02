@@ -35,16 +35,20 @@ class SchemaCreateView(CreateView):
     def form_valid(self, parent_form):
         context = self.get_context_data()
         columns_fs: AddColumnFormSet = context['columns']
-
         new_parent = parent_form.save()
-
+        # import pdb
+        # pdb.set_trace()
         if columns_fs.is_valid():
             for instance in columns_fs:
-                # import pdb
-                # pdb.set_trace()
+                if instance in columns_fs.deleted_forms:
+                    continue
                 column = instance.save(commit=False)
                 column.schema = new_parent
                 column.save()
+        else:
+            print(columns_fs.errors)
+            print('Not valid!')
+        # pdb.set_trace()
 
         return super().form_valid(parent_form)
 
