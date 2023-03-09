@@ -10,10 +10,6 @@
     border: 2px solid #00A78E;
 }
 
-input + label[for="id_columnmodel_set-0-range_from"] {
-    color: red;
-    visibility: hidden;
-}
 
 .button #add-form {
     border: #721c24;

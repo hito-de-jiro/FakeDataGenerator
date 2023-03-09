@@ -3,10 +3,13 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import ListView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 
-from .forms import AddColumnFormSet, LoginForm
+from .forms import AddColumnFormSet, LoginForm, ColumnForm, SchemaForm
 from .models import SchemaModel
+
+
+# import pdb
 
 
 class SchemaListView(ListView):
@@ -19,24 +22,25 @@ class SchemaCreateView(CreateView):
     fields = [
         'name',
         'column_separator',
-        'string_character'
+        'string_character',
     ]
 
     def get_context_data(self, **kwargs):
-        # we need to overwrite get_context_data
-        # to make sure that our formset is rendered
         data = super().get_context_data(**kwargs)
+
         if self.request.POST:
             data['columns'] = AddColumnFormSet(self.request.POST)
+
         else:
             data['columns'] = AddColumnFormSet()
+
         return data
 
     def form_valid(self, parent_form):
         context = self.get_context_data()
         columns_fs: AddColumnFormSet = context['columns']
         new_parent = parent_form.save()
-        # import pdb
+
         # pdb.set_trace()
         if columns_fs.is_valid():
             for instance in columns_fs:
@@ -44,16 +48,24 @@ class SchemaCreateView(CreateView):
                     continue
                 column = instance.save(commit=False)
                 column.schema = new_parent
+                print(1111)
                 column.save()
+
         else:
+
             print(columns_fs.errors)
-            print('Not valid!')
+            return self.form_invalid(parent_form)
         # pdb.set_trace()
 
         return super().form_valid(parent_form)
 
     def get_success_url(self):
         return reverse("schema_list")
+
+
+class SchemaUpdateView(UpdateView):
+    model = SchemaModel
+    template_name = 'edit'
 
 
 def user_login(request):

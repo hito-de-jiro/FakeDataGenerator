@@ -5,16 +5,22 @@
 
     <form id="form-container" method="post">
         {% csrf_token %}
+
         {{ columns.management_form }}
         <h2>New schema</h2>
         {{ form.as_p }}
-        {{ form.errors }}
+        {#        {{ form.errors }}#}
         <h2>Schema columns</h2>
         {% for cform in columns %}
+            {{ columns.non_field_errors }}
             <div class="column-form">
-                {{ cform.errors }}
                 {{ cform.as_table }}
-                <a href="#" class="columnmodel_set-0-delete_column text-danger">delete</a>
+                {{ cform.order.errors }}
+                {% if errors %}
+                    {{ errors }}
+                {% endif %}
+                <a href="#" class="columnmodel_set-0-delete_column text-danger delete_column"
+                   style="text-decoration: none">delete</a>
             </div>
         {% endfor %}
         <button id="add-form" type="button">Add column</button>
@@ -22,6 +28,38 @@
 
     </form>
     <script>
+        // Add event for delete first column
+        const allDeleteColumnByClass = document.getElementsByClassName('delete_column');
+
+        for (let i = 0; i < allDeleteColumnByClass.length; i++) {
+            let deleteColumnLink = allDeleteColumnByClass[i];
+            deleteColumnLink.addEventListener('click', deleteColumnCallback);
+        }
+
+        // Add event to column type
+        const allColumnTypeByClass = document.getElementsByClassName('type_column');
+
+        for (let i = 0; i < allColumnTypeByClass.length; i++) {
+            let columnTypeValue = allColumnTypeByClass[i];
+            columnTypeChange(columnTypeValue);
+            columnTypeValue.addEventListener("change", columnTypeChangeCallback);
+        }
+
+        // Hidden default checkbox and label
+        const allCheckboxByType = document.querySelectorAll('input[type=checkbox]');
+
+        for (let i = 0; i < allCheckboxByType.length; i++) {
+            let checkboxElem = allCheckboxByType[i];
+            let checkboxElemLabel = document.querySelector(`[for="${checkboxElem.id}"]`);
+            checkboxElem.style.display = "none";
+            checkboxElemLabel.style.display = "none";
+        }
+
+
+        {#let elementCheckbox = document.querySelector('input[type=checkbox]');#}
+        {#elementCheckbox.style.display = "none";#}
+        {#let elementCheckboxLabel = document.querySelector(`[for="${elementCheckbox.id}"]`);#}
+        {#elementCheckboxLabel.style.display = "none";#}
 
         function columnTypeChangeCallback(event) {
             event.preventDefault()
@@ -30,11 +68,16 @@
         }
 
         function deleteColumnCallback(event) {
-                event.preventDefault()
+            event.preventDefault()
 
-                this.parentElement.remove()
-                totalForms.setAttribute('value', `${formNum--}`)
-            }
+            {# set checked=true for hidden checkbox #}
+            let elementCheckbox = this.parentElement.querySelector('input[type=checkbox]');
+            elementCheckbox.checked = true;
+            {# reset value for deleted column #}
+            this.parentElement.setAttribute('style', 'display:none;')
+            this.parentElement.querySelector('.name_column').setAttribute('value', '')
+            this.parentElement.querySelector('.order_column').setAttribute('value', '')
+        }
 
         function columnTypeChange(columnType) {
             let type_id = columnType.id;
@@ -54,27 +97,20 @@
             } else {
                 label_from.style.visibility = "";
                 input_from.style.visibility = "";
+                input_from.value = "16";
                 label_to.style.visibility = "";
                 input_to.style.visibility = "";
+                input_to.value = "60"
             }
         }
 
-        // Add event to column type in first form
-        let type_id = 'id_columnmodel_set-0-type'
-        let columnType0 = document.getElementById(type_id)
-        columnType0.addEventListener("change", columnTypeChangeCallback);
-
-        // Add event for delete first column
-        document.querySelector('.columnmodel_set-0-delete_column').addEventListener('click', deleteColumnCallback);
-
-        columnTypeChange(columnType0)
 
         //----------------------------------------------------------------------------------------//
         let columnForm = document.querySelectorAll(".column-form")
         let container = document.querySelector("#form-container")
         let addButton = document.querySelector("#add-form")
         let totalForms = document.querySelector("#id_columnmodel_set-TOTAL_FORMS")
-        let elem_delete = document.querySelectorAll(".delete_column-0")
+
 
         let formNum = columnForm.length - 1 // Get the number of the last form on the page with zero-based indexing
         addButton.addEventListener('click', addForm);
@@ -85,6 +121,12 @@
             // Clone first form
             let newForm = columnForm[0].cloneNode(true)
 
+            if (columnForm[0].getAttribute('style') === "display:none;")
+
+            // Remove style if parent form hidden
+            {
+                newForm.removeAttribute('style')
+            }
             // Update indexes
             let formRegex = RegExp(`columnmodel_set-(\\d){1}-`, 'g')
             formNum++
@@ -109,6 +151,9 @@
             let delete_column = newForm.querySelector(delete_selector)
             delete_column.addEventListener('click', deleteColumnCallback);
         }
+
+
+        //------------------------------------------------------------------//
 
     </script>
 

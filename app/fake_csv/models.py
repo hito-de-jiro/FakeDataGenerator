@@ -44,9 +44,9 @@ class ColumnModel(models.Model):
                             verbose_name='Column type',
                             default='fullname',
                             choices=TYPE_COLUMN)
-    range_from = models.PositiveSmallIntegerField(default=18, verbose_name='From')
-    range_to = models.PositiveSmallIntegerField(default=60, verbose_name='To')
-    order = models.PositiveSmallIntegerField(verbose_name='Order')
+    range_from = models.PositiveSmallIntegerField(verbose_name='From', null=True, blank=True)
+    range_to = models.PositiveSmallIntegerField(verbose_name='To', null=True, blank=True)
+    order = models.PositiveSmallIntegerField(verbose_name='Order', unique=True)
     schema = models.ForeignKey(SchemaModel, on_delete=models.CASCADE, null=True)
 
     class Meta:
