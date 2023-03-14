@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 
 class SchemaModel(models.Model):
@@ -35,7 +36,7 @@ class ColumnModel(models.Model):
     name = models.CharField(max_length=45, verbose_name='Column name')
     TYPE_COLUMN = (
         ('fullname', 'Full name'),
-        ('integer', 'Integer'),
+        ('age', 'Age'),
         ('phone', 'Phone'),
         ('email', 'E-mail'),
         ('address', 'Address'),
@@ -60,4 +61,8 @@ class ColumnModel(models.Model):
 class DataSetsModel(models.Model):
     created = models.DateField(auto_now_add=True, verbose_name='Created')
     num_rows = models.PositiveIntegerField(verbose_name='Rows')
+    schema = models.ForeignKey(SchemaModel, on_delete=models.CASCADE, null=True)
+
+    def get_absolute_url(self):
+        return reverse('schema_detail', args=[str(self.schema)])
 

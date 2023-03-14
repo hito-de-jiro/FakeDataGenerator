@@ -1,24 +1,25 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
-    <a class="navbar-brand" href="{% url 'schema_list' %}"><h1>FakerCSV</h1></a>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
+        <a class="navbar-brand" href="{% url 'schema_list' %}"><h1>FakerCSV</h1></a>
 
-    <div class="collapse navbar-collapse" id="navbar">
+        <div class="collapse navbar-collapse" id="navbar">
 
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="{% url 'schema_list' %}">Schemas<span class="sr-only"></span></a>
-            </li>
-        </ul>
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'schema_list' %}">Schemas<span class="sr-only"></span></a>
+                </li>
+            </ul>
 
-        <div class="my-2 my-md-0">
-{#            <span>Hello, User</span>#}
-{#            <a href="/">Log Out</a>#}
-            {% if user.is_authenticated %}
-                <p>Hello, {{ user.username }}!</p>
-                <p><a href="{% url 'logout' %}">Log out</a></p>
-            {% else %}
-{#                <p>You are not logged in.</p>#}
-                <a href="{% url 'login' %}">Log In</a>
-            {% endif %}
+            <div class="my-2 my-md-0">
+                {% if user.is_authenticated %}
+                    <p>Hello, {{ user.username }}!</p>
+                    <p><a href="{% url 'logout' %}">Log out</a></p>
+                {% else %}
+                    {#                <p>You are not logged in.</p>#}
+                    <a href="{% url 'login' %}">Log In</a>
+                {% endif %}
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
+
+</header>

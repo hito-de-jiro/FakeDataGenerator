@@ -1,9 +1,9 @@
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.urls import reverse
-from django.views.generic import ListView
-from django.views.generic.edit import CreateView, UpdateView
+from django.urls import reverse, reverse_lazy
+from django.views.generic import ListView, DetailView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from .forms import AddColumnFormSet, LoginForm, ColumnForm, SchemaForm
 from .models import SchemaModel
@@ -15,6 +15,13 @@ from .models import SchemaModel
 class SchemaListView(ListView):
     model = SchemaModel
     template_name = 'schema_list.html'
+
+
+class SchemaDetailView(DetailView):
+    model = SchemaModel
+    template_name = 'detail'
+    fields = '__all__'
+    success_url = "data_sets.html"
 
 
 class SchemaCreateView(CreateView):
@@ -66,6 +73,15 @@ class SchemaCreateView(CreateView):
 class SchemaUpdateView(UpdateView):
     model = SchemaModel
     template_name = 'edit'
+    fields = '__all__'
+
+    success_url = "/"
+
+
+class SchemaDeleteView(DeleteView):
+    model = SchemaModel
+    template_name = 'schema_delete.html'
+    success_url = reverse_lazy('schema_list')
 
 
 def user_login(request):
