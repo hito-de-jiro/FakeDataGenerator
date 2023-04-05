@@ -8,12 +8,13 @@
 
         {{ columns.management_form }}
         <div>
-            <h2>New schema</h2>
+            <h2>Edit schema</h2>
             {{ form.as_p }}
         </div>
         <div class="button-info">
-            <button type="submit">Submit</button>
+            <button type="submit" value="Update">Update</button>
         </div>
+
         <h2>Schema columns</h2>
         {% for cform in columns %}
 {#            {{ columns.non_field_errors }}#}
@@ -70,8 +71,7 @@
             elementCheckbox.checked = true;
             {# reset value for deleted column #}
             this.parentElement.setAttribute('style', 'display:none;');
-            this.parentElement.querySelector('.name_column').setAttribute('value', '');
-            this.parentElement.querySelector('.order_column').setAttribute('value', '');
+            this.parentElement.querySelectorAll('input').forEach(elem=>elem.removeAttribute('required'))
         }
 
         function columnTypeChange(columnType) {
@@ -92,10 +92,8 @@
             } else {
                 label_from.style.visibility = "";
                 input_from.style.visibility = "";
-                input_from.value = "16";
                 label_to.style.visibility = "";
                 input_to.style.visibility = "";
-                input_to.value = "60"
             }
         }
 
@@ -125,6 +123,7 @@
 
             // Insert form in page
             container.insertBefore(newForm, addButton);
+            newForm.querySelectorAll('input').forEach(elem=>elem.value='')
 
             // Update total forms count
             totalForms.setAttribute('value', `${formNum + 1}`);

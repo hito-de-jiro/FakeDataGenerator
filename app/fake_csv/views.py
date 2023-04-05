@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -9,23 +9,26 @@ from .forms import AddColumnFormSet, LoginForm, ColumnForm, SchemaForm
 from .models import SchemaModel
 
 
-# import pdb
+import pdb
 
 
 class SchemaListView(ListView):
     model = SchemaModel
-    template_name = 'schema_list.html'
 
 
 class SchemaDetailView(DetailView):
     model = SchemaModel
-    template_name = 'detail'
     fields = '__all__'
-    success_url = "data_sets.html"
+    template_name = 'fake_csv/data_sets.html'
+    success_url = 'schema_detail'
+
+    def get_success_url(self):
+        return reverse("schema_edit")
 
 
 class SchemaCreateView(CreateView):
     model = SchemaModel
+    template_name = "fake_csv/schema_form.html"
     fields = [
         'name',
         'column_separator',
@@ -48,19 +51,14 @@ class SchemaCreateView(CreateView):
         columns_fs: AddColumnFormSet = context['columns']
         new_parent = parent_form.save()
 
-        # pdb.set_trace()
         if columns_fs.is_valid():
             for instance in columns_fs:
                 if instance in columns_fs.deleted_forms:
                     continue
                 column = instance.save(commit=False)
                 column.schema = new_parent
-                print(1111)
                 column.save()
-
         else:
-
-            print(columns_fs.errors)
             return self.form_invalid(parent_form)
         # pdb.set_trace()
 
@@ -70,18 +68,34 @@ class SchemaCreateView(CreateView):
         return reverse("schema_list")
 
 
-class SchemaUpdateView(UpdateView):
-    model = SchemaModel
-    template_name = 'edit'
-    fields = '__all__'
+def update_schema(request, pk):
+    parent_obj = get_object_or_404(SchemaModel, pk=pk)
+    if request.method == 'POST':
+        parent_form = SchemaForm(request.POST, instance=parent_obj)
+        formset = AddColumnFormSet(request.POST, instance=parent_obj)
+        if parent_form.is_valid():
+            parent_form.save()
+            if formset.is_valid():
+                formset.save()
+                return redirect('schema_list')
+    else:
+        parent_form = SchemaForm(instance=parent_obj)
+        formset = AddColumnFormSet(instance=parent_obj)
 
-    success_url = "/"
+    formset.extra = 0
+    context = {
+        'form': parent_form,
+        'columns': formset,
+    }
+    return render(request, 'fake_csv/schema_update.html', context=context)
 
 
 class SchemaDeleteView(DeleteView):
     model = SchemaModel
-    template_name = 'schema_delete.html'
-    success_url = reverse_lazy('schema_list')
+    template_name = 'fake_csv/schema_delete.html'
+
+    def get_success_url(self):
+        return reverse("schema_list")
 
 
 def user_login(request):
@@ -93,11 +107,12 @@ def user_login(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return HttpResponse('Authenticated successfully')
+                    return HttpResponse('Authenticated successfully!')
                 else:
                     return HttpResponse('Disabled account')
             else:
-                return HttpResponse('Invalid login')
+                return HttpResponse('Invalid login! Try again!')
     else:
         form = LoginForm()
+
     return render(request, 'fake_csv/login.html', {'form': form})

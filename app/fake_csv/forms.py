@@ -8,7 +8,6 @@ from django.forms import (
     inlineformset_factory, BaseInlineFormSet,
 )
 
-
 from .models import SchemaModel, ColumnModel
 
 
@@ -70,13 +69,9 @@ class ColumnForm(ModelForm):
         return order
 
 
-class HideDeleteCheckbox(BaseInlineFormSet):
-    pass
-
-
 AddColumnFormSet = inlineformset_factory(
     SchemaModel, ColumnModel, form=ColumnForm,
-    extra=1, can_delete=True, can_delete_extra=True,
+    extra=1, can_delete=True, can_delete_extra=True, can_order=True
 )
 
 

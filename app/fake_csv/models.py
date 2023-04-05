@@ -47,7 +47,6 @@ class ColumnModel(models.Model):
                             choices=TYPE_COLUMN)
     range_from = models.PositiveSmallIntegerField(verbose_name='From', null=True, blank=True)
     range_to = models.PositiveSmallIntegerField(verbose_name='To', null=True, blank=True)
-    order = models.PositiveSmallIntegerField(verbose_name='Order', unique=True)
     schema = models.ForeignKey(SchemaModel, on_delete=models.CASCADE, null=True)
 
     class Meta:
@@ -64,5 +63,4 @@ class DataSetsModel(models.Model):
     schema = models.ForeignKey(SchemaModel, on_delete=models.CASCADE, null=True)
 
     def get_absolute_url(self):
-        return reverse('schema_detail', args=[str(self.schema)])
-
+        return reverse('data_sets', args=[str(self.schema)])
