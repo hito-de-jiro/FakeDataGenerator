@@ -8,7 +8,6 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from .forms import AddColumnFormSet, LoginForm, ColumnForm, SchemaForm
 from .models import SchemaModel
 
-
 import pdb
 
 
@@ -87,6 +86,7 @@ def update_schema(request, pk):
         'form': parent_form,
         'columns': formset,
     }
+
     return render(request, 'fake_csv/schema_update.html', context=context)
 
 
