@@ -13,14 +13,23 @@ class SchemaListView(ListView):
     model = SchemaModel
 
 
-class SchemaDetailView(DetailView):
-    model = SchemaModel
-    fields = '__all__'
-    template_name = 'fake_csv/data_sets.html'
-    success_url = 'schema_detail'
+def detail_schema(request, pk):
+    parent_obj = get_object_or_404(SchemaModel, pk=pk)
 
-    def get_success_url(self):
-        return reverse("schema_edit")
+    if request.method == 'POST':
+        parent_form = SchemaForm(request.POST, instance=parent_obj)
+        formset = AddColumnFormSet(request.POST, instance=parent_obj)
+    else:
+        parent_form = SchemaForm(instance=parent_obj)
+        formset = AddColumnFormSet(instance=parent_obj)
+
+    formset.extra = 0
+    context = {
+        'form': parent_form,
+        'columns': formset,
+    }
+
+    return render(request, 'fake_csv/schema_detail.html', context=context)
 
 
 class SchemaCreateView(CreateView):

@@ -2,5 +2,47 @@
 
 {% block content %}
     {% include 'fake_csv/header.html' %}
+
     <h1>{{ object.name }}</h1>
+
+    <div class="container my-4">
+        <div class="row">
+            <div class="col">
+                <h2>Schema: {{ form.name.value }} </h2>
+            </div>
+            <div class="col-md-auto">
+
+            </div>
+            <div class="col col-lg-2">
+                <a href="#">Edit schema</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <div class="bd-example-snippet bd-code-snippet">
+            <div class="bd-example">
+                <table class="table table-sm table-bordered">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Column name</th>
+                        <th scope="col">Column type</th>
+
+                    </tr>
+                    </thead>
+                    {% for column in columns %}
+                    <tbody>
+                        <tr>
+                            <th scope="row">{{ column.order.value}}</th>
+                            <td><a class="text-primary" href="">{{ column.name.value }}</a></td>
+                            <td>{{ column.type.value }}</td>
+                        </tr>
+                    </tbody>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
