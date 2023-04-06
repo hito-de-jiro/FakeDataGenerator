@@ -1,14 +1,12 @@
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.views.generic import ListView, DetailView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import CreateView, DeleteView
 
-from .forms import AddColumnFormSet, LoginForm, ColumnForm, SchemaForm
+from .forms import AddColumnFormSet, LoginForm, SchemaForm
 from .models import SchemaModel
-
-import pdb
 
 
 class SchemaListView(ListView):
@@ -39,7 +37,6 @@ class SchemaCreateView(CreateView):
 
         if self.request.POST:
             data['columns'] = AddColumnFormSet(self.request.POST)
-
         else:
             data['columns'] = AddColumnFormSet()
 
@@ -59,7 +56,6 @@ class SchemaCreateView(CreateView):
                 column.save()
         else:
             return self.form_invalid(parent_form)
-        # pdb.set_trace()
 
         return super().form_valid(parent_form)
 
@@ -69,6 +65,7 @@ class SchemaCreateView(CreateView):
 
 def update_schema(request, pk):
     parent_obj = get_object_or_404(SchemaModel, pk=pk)
+
     if request.method == 'POST':
         parent_form = SchemaForm(request.POST, instance=parent_obj)
         formset = AddColumnFormSet(request.POST, instance=parent_obj)

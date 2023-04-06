@@ -5,7 +5,7 @@ from django.forms import (
     TextInput,
     Select,
     NumberInput,
-    inlineformset_factory, BaseInlineFormSet,
+    inlineformset_factory,
 )
 
 from .models import SchemaModel, ColumnModel
