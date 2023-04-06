@@ -16,5 +16,4 @@ urlpatterns = [
     path('schemas/<int:pk>/delete', SchemaDeleteView.as_view(), name='schema_delete'),
     path('schemas/<int:pk>/', SchemaDetailView.as_view(), name='schema_detail'),
     path('', user_login, name='login'),  # http://127.0.0.1:8000/
-
 ]
