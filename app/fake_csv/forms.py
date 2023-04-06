@@ -71,7 +71,7 @@ class ColumnForm(ModelForm):
 
 AddColumnFormSet = inlineformset_factory(
     SchemaModel, ColumnModel, form=ColumnForm,
-    extra=1, can_delete=True, can_delete_extra=True, can_order=True
+    extra=1, can_delete=True, can_delete_extra=True
 )
 
 
