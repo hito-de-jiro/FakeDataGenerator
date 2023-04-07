@@ -1,3 +1,5 @@
+import pdb
+
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -16,19 +18,15 @@ class SchemaListView(ListView):
 def detail_schema(request, pk):
     parent_obj = get_object_or_404(SchemaModel, pk=pk)
 
-    if request.method == 'POST':
-        parent_form = SchemaForm(request.POST, instance=parent_obj)
-        formset = AddColumnFormSet(request.POST, instance=parent_obj)
-    else:
-        parent_form = SchemaForm(instance=parent_obj)
-        formset = AddColumnFormSet(instance=parent_obj)
+    parent_form = SchemaForm(instance=parent_obj)
+    formset = AddColumnFormSet(instance=parent_obj)
 
     formset.extra = 0
     context = {
         'form': parent_form,
         'columns': formset,
     }
-
+    # pdb.set_trace()
     return render(request, 'fake_csv/schema_detail.html', context=context)
 
 
