@@ -53,6 +53,7 @@ class ColumnModel(models.Model):
     class Meta:
         verbose_name = "column"
         verbose_name_plural = "columns"
+        ordering = ['order']
 
     def __str__(self):
         return self.name
