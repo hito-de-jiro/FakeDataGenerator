@@ -1,35 +1,21 @@
-import pdb
-
 from django.contrib.auth import authenticate, login
+# from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView
 from django.views.generic.edit import CreateView, DeleteView
 
+from .fake_app.generator_fake_data import run_process
 from .forms import AddColumnFormSet, LoginForm, SchemaForm
-from .models import SchemaModel
+from .models import SchemaModel, DatasetModel
 
 
 class SchemaListView(ListView):
     model = SchemaModel
 
 
-def detail_schema(request, pk):
-    parent_obj = get_object_or_404(SchemaModel, pk=pk)
-
-    parent_form = SchemaForm(instance=parent_obj)
-    formset = AddColumnFormSet(instance=parent_obj)
-
-    formset.extra = 0
-    context = {
-        'form': parent_form,
-        'columns': formset,
-    }
-    # pdb.set_trace()
-    return render(request, 'fake_csv/schema_detail.html', context=context)
-
-
+# @login_required
 class SchemaCreateView(CreateView):
     model = SchemaModel
     template_name = "fake_csv/schema_form.html"
@@ -70,6 +56,7 @@ class SchemaCreateView(CreateView):
         return reverse("schema_list")
 
 
+# @login_required
 def update_schema(request, pk):
     parent_obj = get_object_or_404(SchemaModel, pk=pk)
 
@@ -94,12 +81,50 @@ def update_schema(request, pk):
     return render(request, 'fake_csv/schema_update.html', context=context)
 
 
+# @login_required
 class SchemaDeleteView(DeleteView):
     model = SchemaModel
     template_name = 'fake_csv/schema_delete.html'
 
     def get_success_url(self):
         return reverse("schema_list")
+
+
+# @login_required
+def detail_schema(request, pk):  # TODO: Allow only GET
+    parent_obj = get_object_or_404(SchemaModel, pk=pk)
+    parent_id = parent_obj.id
+    parent_form = SchemaForm(instance=parent_obj)
+    formset = AddColumnFormSet(instance=parent_obj)
+    datasets = DatasetModel.objects.filter(schema_id=parent_id)
+    formset.extra = 0
+    context = {
+        'form': parent_form,
+        'columns': formset,
+        'datasets': datasets,
+    }
+    return render(request, 'fake_csv/schema_detail.html', context=context)
+
+
+# @login_required
+def create_dataset(request, pk):
+    parent_obj = get_object_or_404(SchemaModel, pk=pk)
+    parent_id = parent_obj.id
+    # pdb.set_trace()
+
+    num_rows = request.POST['rows']
+    range_from = 0
+    range_to = 100
+    data_types = ['fullname']
+    file_name = 'data.csv'
+
+    filepath = run_process(num_rows, data_types, file_name, range_from, range_to)
+    if request.method == "POST":
+        data = DatasetModel(schema_id=parent_id)
+        data.file = request.POST.get(filepath)
+        data.save()
+
+    return redirect('schema_detail', pk=pk)
 
 
 def user_login(request):
