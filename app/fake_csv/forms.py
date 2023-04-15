@@ -8,7 +8,7 @@ from django.forms import (
     inlineformset_factory,
 )
 
-from .models import SchemaModel, ColumnModel
+from .models import SchemaModel, ColumnModel, DatasetModel
 
 
 class SchemaForm(ModelForm):
@@ -73,6 +73,12 @@ AddColumnFormSet = inlineformset_factory(
     SchemaModel, ColumnModel, form=ColumnForm,
     extra=1, can_delete=True, can_delete_extra=True
 )
+
+
+class DatasetForm(ModelForm):
+    class Meta:
+        model = DatasetModel
+        fields = '__all__'
 
 
 class LoginForm(forms.Form):

@@ -59,10 +59,16 @@ class ColumnModel(models.Model):
         return self.name
 
 
-class DataSetsModel(models.Model):
+class DatasetModel(models.Model):
     created = models.DateField(auto_now_add=True, verbose_name='Created')
-    num_rows = models.PositiveIntegerField(verbose_name='Rows')
+    status = models.BooleanField(default=False)
+    file = models.FileField(upload_to='photos/%Y/%m/%d-%H:%M', blank=True)
     schema = models.ForeignKey(SchemaModel, on_delete=models.CASCADE, null=True)
 
-    def get_absolute_url(self):
-        return reverse('data_sets', args=[str(self.schema)])
+    class Meta:
+        verbose_name = "dataset"
+        verbose_name_plural = "datasets"
+
+
+    # def get_absolute_url(self):
+    #     return reverse('create_dataset', args=[str(self.schema)])
