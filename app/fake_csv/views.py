@@ -1,5 +1,7 @@
+import os
+from datetime import datetime
+
 from django.contrib.auth import authenticate, login
-# from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
@@ -8,14 +10,13 @@ from django.views.generic.edit import CreateView, DeleteView
 
 from .fake_app.generator_fake_data import run_process
 from .forms import AddColumnFormSet, LoginForm, SchemaForm
-from .models import SchemaModel, DatasetModel
+from .models import SchemaModel, DatasetModel, ColumnModel
 
 
 class SchemaListView(ListView):
     model = SchemaModel
 
 
-# @login_required
 class SchemaCreateView(CreateView):
     model = SchemaModel
     template_name = "fake_csv/schema_form.html"
@@ -56,7 +57,6 @@ class SchemaCreateView(CreateView):
         return reverse("schema_list")
 
 
-# @login_required
 def update_schema(request, pk):
     parent_obj = get_object_or_404(SchemaModel, pk=pk)
 
@@ -81,7 +81,6 @@ def update_schema(request, pk):
     return render(request, 'fake_csv/schema_update.html', context=context)
 
 
-# @login_required
 class SchemaDeleteView(DeleteView):
     model = SchemaModel
     template_name = 'fake_csv/schema_delete.html'
@@ -90,7 +89,6 @@ class SchemaDeleteView(DeleteView):
         return reverse("schema_list")
 
 
-# @login_required
 def detail_schema(request, pk):  # TODO: Allow only GET
     parent_obj = get_object_or_404(SchemaModel, pk=pk)
     parent_id = parent_obj.id
@@ -106,24 +104,34 @@ def detail_schema(request, pk):  # TODO: Allow only GET
     return render(request, 'fake_csv/schema_detail.html', context=context)
 
 
-# @login_required
 def create_dataset(request, pk):
+    now = datetime.now().strftime("%d-%m-%Y_%H_%M_%S")
     parent_obj = get_object_or_404(SchemaModel, pk=pk)
     parent_id = parent_obj.id
-    # pdb.set_trace()
+    columns = ColumnModel.objects.filter(schema_id=parent_id)
 
     num_rows = request.POST['rows']
     range_from = 0
     range_to = 100
-    data_types = ['fullname']
-    file_name = 'data.csv'
+    data_types = []
+    for column in columns:
+        data_types.append(column.type)
+    file_name = f'{parent_obj.name}_{now}.csv'
+    column_separator = parent_obj.column_separator
+    string_character = parent_obj.string_character
 
-    filepath = run_process(num_rows, data_types, file_name, range_from, range_to)
-    if request.method == "POST":
-        data = DatasetModel(schema_id=parent_id)
-        data.file = request.POST.get(filepath)
-        data.save()
+    file_name = run_process(num_rows,
+                            data_types,
+                            file_name,
+                            range_from,
+                            range_to,
+                            column_separator,
+                            string_character)
 
+    data = DatasetModel(schema_id=parent_id)
+    data.file = file_name
+    data.status = 'Ready'
+    data.save()
     return redirect('schema_detail', pk=pk)
 
 
@@ -133,14 +141,16 @@ def user_login(request):
         if form.is_valid():
             cd = form.cleaned_data
             user = authenticate(username=cd['username'], password=cd['password'])
+
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return HttpResponse('Authenticated successfully!')
+                    return redirect('schema_list')
                 else:
                     return HttpResponse('Disabled account')
             else:
                 return HttpResponse('Invalid login! Try again!')
+
     else:
         form = LoginForm()
 
