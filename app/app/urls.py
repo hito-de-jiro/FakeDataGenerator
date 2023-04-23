@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-                  path('admin/', admin.site.urls),   # http://127.0.0.1:8000/admin
+                  path('admin/', admin.site.urls),  # http://127.0.0.1:8000/admin
                   path('accounts/', include('django.contrib.auth.urls')),  # http://127.0.0.1:8000/accounts/login/
                   path('', include('fake_csv.urls')),
               ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
