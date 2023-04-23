@@ -2,7 +2,6 @@ import csv
 import os
 
 from django.conf import settings
-
 from faker import Faker
 
 
@@ -62,4 +61,5 @@ def run_process(num: int,
     filepath = save_data(data_iter,
                          delimiter=delimiter,
                          quotechar=quotechar, file_name=file_name, data_types=data_types)
+
     return filepath

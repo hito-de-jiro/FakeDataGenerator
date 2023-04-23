@@ -1,6 +1,9 @@
 import os
+import threading
 from datetime import datetime
+from time import time
 
+from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -8,7 +11,7 @@ from django.urls import reverse
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, DeleteView
 
-from .fake_app.generator_fake_data import run_process
+from .fake_app.generator_data import run_process
 from .forms import AddColumnFormSet, LoginForm, SchemaForm
 from .models import SchemaModel, DatasetModel, ColumnModel
 
@@ -109,7 +112,6 @@ def create_dataset(request, pk):
     parent_obj = get_object_or_404(SchemaModel, pk=pk)
     parent_id = parent_obj.id
     columns = ColumnModel.objects.filter(schema_id=parent_id)
-
     num_rows = request.POST['rows']
     range_from = 0
     range_to = 100
@@ -120,18 +122,28 @@ def create_dataset(request, pk):
     column_separator = parent_obj.column_separator
     string_character = parent_obj.string_character
 
-    file_name = run_process(num_rows,
-                            data_types,
-                            file_name,
-                            range_from,
-                            range_to,
-                            column_separator,
-                            string_character)
+    start = time()
+    thr = threading.Thread(target=run_process, args=(num_rows,
+                                                     data_types,
+                                                     file_name,
+                                                     range_from,
+                                                     range_to,
+                                                     column_separator,
+                                                     string_character),
+                           daemon=True)
+    thr.start()
 
     data = DatasetModel(schema_id=parent_id)
     data.file = file_name
-    data.status = 'Ready'
+    if os.path.isfile(os.path.join(settings.MEDIA_ROOT, file_name)):
+        data.status = 'Ready'
+    else:
+        data.status = 'Processing...'
     data.save()
+
+    end = time()
+    print('Took %.3f sec' % (end - start))
+
     return redirect('schema_detail', pk=pk)
 
 
