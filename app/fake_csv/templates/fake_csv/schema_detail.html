@@ -78,7 +78,9 @@
                             <th scope="row">{{ forloop.counter }}</th>
                             <td>{{ dataset.created }}</td>
                             <td>{{ dataset.status }}</td>
-                            <td><a class="text-primary" href="{{ dataset.file }}">Download</a></td>
+                            <td>
+                                <a class="text-primary" href="{{ MEDIA_URL }}{{ dataset.file }}">Download</a>
+                            </td>
                         </tr>
                         </tbody>
                     {% endfor %}
