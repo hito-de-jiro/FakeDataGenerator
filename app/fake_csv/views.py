@@ -1,7 +1,6 @@
 import os
 import threading
 from datetime import datetime
-from time import time
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login
@@ -108,41 +107,36 @@ def detail_schema(request, pk):  # TODO: Allow only GET
 
 
 def create_dataset(request, pk):
-    now = datetime.now().strftime("%d-%m-%Y_%H_%M_%S")
+    now = datetime.now().strftime("%d%m%Y_%H%M%S")
     parent_obj = get_object_or_404(SchemaModel, pk=pk)
     parent_id = parent_obj.id
     columns = ColumnModel.objects.filter(schema_id=parent_id)
     num_rows = request.POST['rows']
     range_from = 0
     range_to = 100
+
     data_types = []
     for column in columns:
         data_types.append(column.type)
-    file_name = f'{parent_obj.name}_{now}.csv'
+
+    file_name = os.path.join(settings.MEDIA_ROOT, f'{parent_obj.name}_{now}.csv')
     column_separator = parent_obj.column_separator
     string_character = parent_obj.string_character
 
-    start = time()
     thr = threading.Thread(target=run_process, args=(num_rows,
                                                      data_types,
                                                      file_name,
                                                      range_from,
                                                      range_to,
                                                      column_separator,
-                                                     string_character),
-                           daemon=True)
+                                                     string_character), daemon=True)
     thr.start()
+    thr.join()
 
     data = DatasetModel(schema_id=parent_id)
     data.file = file_name
-    if os.path.isfile(os.path.join(settings.MEDIA_ROOT, file_name)):
-        data.status = 'Ready'
-    else:
-        data.status = 'Processing...'
+    data.status = 'Ready'
     data.save()
-
-    end = time()
-    print('Took %.3f sec' % (end - start))
 
     return redirect('schema_detail', pk=pk)
 
