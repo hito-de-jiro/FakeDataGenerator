@@ -79,7 +79,11 @@
                             <td>{{ dataset.created }}</td>
                             <td>{{ dataset.status }}</td>
                             <td>
-                                <a class="text-primary" href="{{ MEDIA_URL }}{{ dataset.file }}">Download</a>
+                                {% if dataset.status == 'Ready' %}
+                                    <a class="text-primary" href="{{ MEDIA_URL }}{{ dataset.file }}">Download</a>
+                                {% else %}
+                                    <a class="text-primary" href="{{ MEDIA_URL }}{{ dataset.file }}" style="display: none;">Download</a>
+                                {% endif %}
                             </td>
                         </tr>
                         </tbody>
