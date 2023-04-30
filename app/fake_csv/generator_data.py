@@ -72,7 +72,6 @@ def run_process(data,
 
 
 def get_set_ready(data, id_dataset, file_name):
-    print(id_dataset)
     if id_dataset:
         data.status = 'Ready'
         data.file = file_name

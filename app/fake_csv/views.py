@@ -4,9 +4,12 @@ from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.views import View
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, DeleteView
 
@@ -19,7 +22,7 @@ class SchemaListView(ListView):
     model = SchemaModel
 
 
-class SchemaCreateView(CreateView):
+class SchemaCreateView(LoginRequiredMixin, CreateView):
     model = SchemaModel
     template_name = "fake_csv/schema_form.html"
     fields = [
@@ -59,6 +62,7 @@ class SchemaCreateView(CreateView):
         return reverse("schema_list")
 
 
+@login_required
 def update_schema(request, pk):
     parent_obj = get_object_or_404(SchemaModel, pk=pk)
 
@@ -83,7 +87,7 @@ def update_schema(request, pk):
     return render(request, 'fake_csv/schema_update.html', context=context)
 
 
-class SchemaDeleteView(DeleteView):
+class SchemaDeleteView(LoginRequiredMixin, DeleteView):
     model = SchemaModel
     template_name = 'fake_csv/schema_delete.html'
 
@@ -91,6 +95,7 @@ class SchemaDeleteView(DeleteView):
         return reverse("schema_list")
 
 
+@login_required
 def detail_schema(request, pk):
     if request.method == 'GET':
         parent_obj = get_object_or_404(SchemaModel, pk=pk)
@@ -109,6 +114,7 @@ def detail_schema(request, pk):
         return reverse("schema_list")
 
 
+@login_required
 def create_dataset(request, pk):
     now = datetime.now().strftime("%d%m%Y_%H%M%S")
     parent_obj = get_object_or_404(SchemaModel, pk=pk)
