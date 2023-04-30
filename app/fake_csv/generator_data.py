@@ -1,8 +1,10 @@
 import csv
-import os
+import pdb
 
-from django.conf import settings
+from django.shortcuts import get_object_or_404
 from faker import Faker
+
+from .models import SchemaModel, DatasetModel
 
 
 def generate_fake_value(fake, data_type, range_from=18, range_to=60):
@@ -33,9 +35,8 @@ def generate_fake_data(num: int, data_types: list, range_from=18, range_to=60) -
 def save_data(data_iter: iter, file_name: str, delimiter: str, quotechar: str, data_types: list):
     """Save created data to CSV file"""
     fieldnames = data_types
-    file_path = os.path.join(settings.MEDIA_ROOT, file_name)
 
-    with open(file_path, 'w', newline='') as f:
+    with open(file_name, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames,
                                 delimiter=delimiter,
                                 quotechar=quotechar,
@@ -44,22 +45,36 @@ def save_data(data_iter: iter, file_name: str, delimiter: str, quotechar: str, d
         for row in data_iter:
             writer.writerow(row)
 
-    return file_name
 
-
-def run_process(num: int,
+def run_process(data,
+                id_dataset,
+                num: int,
                 data_types: list,
                 file_name: str,
                 range_from: int,
                 range_to: int,
                 delimiter: str,
-                quotechar: str, ):
+                quotechar: str):
     data_iter = generate_fake_data(num=num,
                                    range_from=range_from,
                                    range_to=range_to,
                                    data_types=data_types)
-    filepath = save_data(data_iter,
-                         delimiter=delimiter,
-                         quotechar=quotechar, file_name=file_name, data_types=data_types)
+    save_data(data_iter,
+              delimiter=delimiter,
+              quotechar=quotechar,
+              file_name=file_name,
+              data_types=data_types,
+              )
 
-    return filepath
+    get_set_ready(data,
+                  id_dataset,
+                  file_name)
+
+
+def get_set_ready(data, id_dataset, file_name):
+    print(id_dataset)
+    if id_dataset:
+        data.status = 'Ready'
+        data.file = file_name
+        data.save()
+

@@ -10,8 +10,8 @@ from django.urls import reverse
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, DeleteView
 
-from .fake_app.generator_data import run_process
 from .forms import AddColumnFormSet, LoginForm, SchemaForm
+from .generator_data import run_process
 from .models import SchemaModel, DatasetModel, ColumnModel
 
 
@@ -91,19 +91,22 @@ class SchemaDeleteView(DeleteView):
         return reverse("schema_list")
 
 
-def detail_schema(request, pk):  # TODO: Allow only GET
-    parent_obj = get_object_or_404(SchemaModel, pk=pk)
-    parent_id = parent_obj.id
-    parent_form = SchemaForm(instance=parent_obj)
-    formset = AddColumnFormSet(instance=parent_obj)
-    datasets = DatasetModel.objects.filter(schema_id=parent_id)
-    formset.extra = 0
-    context = {
-        'form': parent_form,
-        'columns': formset,
-        'datasets': datasets,
-    }
-    return render(request, 'fake_csv/schema_detail.html', context=context)
+def detail_schema(request, pk):
+    if request.method == 'GET':
+        parent_obj = get_object_or_404(SchemaModel, pk=pk)
+        parent_id = parent_obj.id
+        parent_form = SchemaForm(instance=parent_obj)
+        formset = AddColumnFormSet(instance=parent_obj)
+        datasets = DatasetModel.objects.filter(schema_id=parent_id)
+        formset.extra = 0
+        context = {
+            'form': parent_form,
+            'columns': formset,
+            'datasets': datasets,
+        }
+        return render(request, 'fake_csv/schema_detail.html', context=context)
+    else:
+        return reverse("schema_list")
 
 
 def create_dataset(request, pk):
@@ -111,6 +114,7 @@ def create_dataset(request, pk):
     parent_obj = get_object_or_404(SchemaModel, pk=pk)
     parent_id = parent_obj.id
     columns = ColumnModel.objects.filter(schema_id=parent_id)
+
     num_rows = request.POST['rows']
     range_from = 0
     range_to = 100
@@ -123,22 +127,29 @@ def create_dataset(request, pk):
     column_separator = parent_obj.column_separator
     string_character = parent_obj.string_character
 
-    thr = threading.Thread(target=run_process, args=(num_rows,
+    data = DatasetModel(schema_id=parent_id)
+    id_dataset = get_set_processing(data)
+    thr = threading.Thread(target=run_process, args=(data,
+                                                     id_dataset,
+                                                     num_rows,
                                                      data_types,
                                                      file_name,
                                                      range_from,
                                                      range_to,
                                                      column_separator,
-                                                     string_character), daemon=True)
-    thr.start()
-    thr.join()
+                                                     string_character,
+                                                     ), daemon=True)
 
-    data = DatasetModel(schema_id=parent_id)
-    data.file = file_name
-    data.status = 'Ready'
-    data.save()
+    thr.start()
 
     return redirect('schema_detail', pk=pk)
+
+
+def get_set_processing(data):
+    data.status = 'Processing...'
+    data.save()
+    id_dataset = data.id
+    return id_dataset
 
 
 def user_login(request):
