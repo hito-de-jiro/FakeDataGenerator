@@ -32,7 +32,8 @@
                         <tbody>
                         <tr>
                             <th scope="row">{{ forloop.counter }}</th>
-                            <td><a class="text-primary" href="{% url 'schema_detail' schema.id %}">{{ schema.name }}</a></td>
+                            <td><a class="text-primary" href="{% url 'schema_detail' schema.id %}">{{ schema.name }}</a>
+                            </td>
                             <td>{{ schema.modified | date }}</td>
                             <td><a href="{% url 'schema_edit' schema.id %}">Edit schema</a>
                                 <a href="{% url 'schema_delete' schema.id %}">

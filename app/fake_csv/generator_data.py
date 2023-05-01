@@ -1,10 +1,6 @@
 import csv
-import pdb
 
-from django.shortcuts import get_object_or_404
 from faker import Faker
-
-from .models import SchemaModel, DatasetModel
 
 
 def generate_fake_value(fake, data_type, range_from=18, range_to=60):
@@ -76,4 +72,3 @@ def get_set_ready(data, id_dataset, file_name):
         data.status = 'Ready'
         data.file = file_name
         data.save()
-
