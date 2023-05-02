@@ -31,8 +31,9 @@
                     {% for schema in object_list %}
                         <tbody>
                         <tr>
-                            <th scope="row">{{ schema.id }}</th>
-                            <td><a class="text-primary" href="{% url 'schema_detail' schema.id %}">{{ schema.name }}</a></td>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td><a class="text-primary" href="{% url 'schema_detail' schema.id %}">{{ schema.name }}</a>
+                            </td>
                             <td>{{ schema.modified | date }}</td>
                             <td><a href="{% url 'schema_edit' schema.id %}">Edit schema</a>
                                 <a href="{% url 'schema_delete' schema.id %}">

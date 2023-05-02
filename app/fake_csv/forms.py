@@ -8,7 +8,7 @@ from django.forms import (
     inlineformset_factory,
 )
 
-from .models import SchemaModel, ColumnModel
+from .models import SchemaModel, ColumnModel, DatasetModel
 
 
 class SchemaForm(ModelForm):
@@ -50,14 +50,14 @@ class ColumnForm(ModelForm):
                 'class': 'type_column',
             }),
             'range_from': NumberInput(attrs={
-                'class': 'range_from',
+                'class': 'range_from col-1',
             },
             ),
             'range_to': NumberInput(attrs={
-                'class': 'range_to',
+                'class': 'range_to col-1',
             }),
             'order': NumberInput(attrs={
-                'class': 'order_column',
+                'class': 'order_column col-1',
                 'required': 'true',
             }),
         }
@@ -73,6 +73,12 @@ AddColumnFormSet = inlineformset_factory(
     SchemaModel, ColumnModel, form=ColumnForm,
     extra=1, can_delete=True, can_delete_extra=True
 )
+
+
+class DatasetForm(ModelForm):
+    class Meta:
+        model = DatasetModel
+        fields = '__all__'
 
 
 class LoginForm(forms.Form):

@@ -261,3 +261,4 @@ cython_debug/
 /app/fake_csv/templates/fake_csv/forms1.html
 /django_comand.txt
 /app/fake_csv/migrations/
+/app/media/
