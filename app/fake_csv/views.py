@@ -115,6 +115,7 @@ def detail_schema(request, pk):
 
 @login_required
 def create_dataset(request, pk):
+    """Create dataset."""
     now = datetime.now().strftime("%d%m%Y_%H%M%S")
     parent_obj = get_object_or_404(SchemaModel, pk=pk)
     parent_id = parent_obj.id
@@ -124,9 +125,7 @@ def create_dataset(request, pk):
     range_from = 0
     range_to = 100
 
-    data_types = []
-    for column in columns:
-        data_types.append(column.type)
+    name_type_dict = {column.name: column.type for column in columns}
 
     file_name = os.path.join(settings.MEDIA_ROOT, f'{parent_obj.name}_{now}.csv')
     column_separator = parent_obj.column_separator
@@ -137,7 +136,7 @@ def create_dataset(request, pk):
     thr = threading.Thread(target=run_process, args=(data,
                                                      id_dataset,
                                                      num_rows,
-                                                     data_types,
+                                                     name_type_dict,
                                                      file_name,
                                                      range_from,
                                                      range_to,
@@ -151,6 +150,7 @@ def create_dataset(request, pk):
 
 
 def get_set_processing(data):
+    """Set the status of the started file"""
     data.status = 'Processing...'
     data.save()
     id_dataset = data.id
@@ -176,4 +176,4 @@ def user_login(request):
     else:
         form = LoginForm()
 
-    return render(request, 'fake_csv/login.html', {'form': form})
+    return render(request, 'registration/login.html', {'form': form})
