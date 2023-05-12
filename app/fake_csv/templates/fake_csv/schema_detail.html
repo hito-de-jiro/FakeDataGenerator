@@ -43,19 +43,20 @@
                 <h2>Data sets</h2>
             </div>
             <div class="col-md-auto">
-
             </div>
 
             <form action="{% url 'create_dataset' form.instance.id %}" method="post">
                 {% csrf_token %}
-                <div class="col col-lg-3">
+                <div class="col col-lg-4">
                     <label for="rows">Rows:</label>
                     <input type="number" required min="0" id="rows" name="rows">
                 </div>
+
                 <div class="col col-lg-4">
                     <button type="submit" class="btn btn-success">Generate data</button>
                 </div>
             </form>
+
         </div>
     </div>
 
@@ -77,12 +78,19 @@
                         <tr>
                             <th scope="row">{{ forloop.counter }}</th>
                             <td>{{ dataset.created }}</td>
-                            <td>{{ dataset.status }}</td>
+                            <td>
+                                {% if dataset.status == 'Ready' %}
+                                    <span class="btn btn-success">{{ dataset.status }}</span>
+                                {% else %}
+                                    <span class="btn btn-info">{{ dataset.status }}</span>
+                                {% endif %}
+                            </td>
                             <td>
                                 {% if dataset.status == 'Ready' %}
                                     <a class="text-primary" href="{{ MEDIA_URL }}{{ dataset.file }}">Download</a>
                                 {% else %}
-                                    <a class="text-primary" href="{{ MEDIA_URL }}{{ dataset.file }}" style="display: none;">Download</a>
+                                    <a class="text-primary" href="{{ MEDIA_URL }}{{ dataset.file }}"
+                                       style="display: none;">Download</a>
                                 {% endif %}
                             </td>
                         </tr>
