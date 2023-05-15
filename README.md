@@ -25,6 +25,10 @@ Install dependencies of project
 ```
 pip install -r requirements.txt
 ```
+Go to application folder 
+```
+cd app
+```
 Make and apply project migrations
 ```
 python manage.py makemigrations
