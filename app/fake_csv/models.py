@@ -35,7 +35,7 @@ class ColumnModel(models.Model):
     name = models.CharField(max_length=45, verbose_name='Column name')
     TYPE_COLUMN = (
         ('fullname', 'Full name'),
-        ('age', 'Age'),
+        ('integer', 'Integer'),
         ('phone', 'Phone'),
         ('email', 'E-mail'),
         ('address', 'Address'),
