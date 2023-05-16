@@ -12,7 +12,7 @@
             {{ form.as_p }}
         </div>
         <div class="button-info">
-            <button type="submit" value="Update">Update</button>
+            <button type="submit" value="Update" class="btn btn-success">Update</button>
         </div>
 
         <h2>Schema columns</h2>
@@ -24,11 +24,13 @@
                    style="text-decoration: none">delete</a>
             </div>
         {% endfor %}
-        <button id="add-form" type="button">Add column</button>
+        <button id="add-form" type="button" class="btn btn-primary">Add column</button>
 
     </form>
 
     <script>
+
+
         // Add event for delete first column
         const allDeleteColumnByClass = document.getElementsByClassName('delete_column');
 
@@ -84,7 +86,7 @@
             let label_to = document.querySelector("label[for='" + to_id + "']");
             let input_to = document.getElementById(to_id);
 
-            if (columnType.value !== 'age') {
+            if (columnType.value !== 'integer') {
                 label_from.style.visibility = "hidden";
                 input_from.style.visibility = "hidden";
                 label_to.style.visibility = "hidden";
