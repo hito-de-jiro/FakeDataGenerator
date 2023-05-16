@@ -51,10 +51,12 @@ class ColumnForm(ModelForm):
             }),
             'range_from': NumberInput(attrs={
                 'class': 'range_from col-1',
+                'value': 1,
             },
             ),
             'range_to': NumberInput(attrs={
                 'class': 'range_to col-1',
+                'value': 2147483647,
             }),
             'order': NumberInput(attrs={
                 'class': 'order_column col-1',

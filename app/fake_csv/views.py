@@ -120,26 +120,20 @@ def create_dataset(request, pk):
     parent_obj = get_object_or_404(SchemaModel, pk=pk)
     parent_id = parent_obj.id
     columns = ColumnModel.objects.filter(schema_id=parent_id)
-
     num_rows = request.POST['rows']
-    range_from = 0
-    range_to = 100
-
-    name_type_dict = {column.name: column.type for column in columns}
-
+    data_dict = {column.name: [column.type, column.range_from, column.range_to] for column in columns}
     file_name = os.path.join(settings.MEDIA_ROOT, f'{parent_obj.name}_{now}.csv')
     column_separator = parent_obj.column_separator
     string_character = parent_obj.string_character
-
     data = DatasetModel(schema_id=parent_id)
+
     id_dataset = get_set_processing(data)
+
     thr = threading.Thread(target=run_process, args=(data,
                                                      id_dataset,
                                                      num_rows,
-                                                     name_type_dict,
+                                                     data_dict,
                                                      file_name,
-                                                     range_from,
-                                                     range_to,
                                                      column_separator,
                                                      string_character,
                                                      ), daemon=True)
@@ -151,7 +145,7 @@ def create_dataset(request, pk):
 
 def get_set_processing(data):
     """Set the status of the started file"""
-    data.status = 'Processing...'
+    data.status = 'Processing'
     data.save()
     id_dataset = data.id
     return id_dataset
