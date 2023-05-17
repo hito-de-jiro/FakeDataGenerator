@@ -19,7 +19,7 @@ def generate_fake_value(fake, data_type, range_from, range_to):
     elif data_type == 'email':
         return fake.email()
     elif data_type == 'address':
-        return fake.address()
+        return fake.address().replace('\n', ' ')
 
 
 def generate_fake_data(num: int, data_dict: dict) -> iter:
