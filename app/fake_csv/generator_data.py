@@ -9,10 +9,7 @@ def generate_fake_value(fake, data_type, range_from, range_to):
         return fake.name()
 
     elif data_type == 'integer':
-        if range_from and range_to is not None:
-            return fake.random_int(range_from, range_to)
-        else:
-            return None
+        return fake.random_int(range_from, range_to)
 
     elif data_type == 'phone':
         return fake.phone_number()
