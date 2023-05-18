@@ -3,7 +3,7 @@ import csv
 from faker import Faker
 
 
-def generate_fake_value(fake, data_type, range_from, range_to):
+def generate_fake_value(fake, data_type, range_from=0, range_to=0):
     """Generate a single fake value of a given type"""
     if data_type == 'fullname':
         return fake.name()

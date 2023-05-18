@@ -17,7 +17,7 @@
 
         <h2>Schema columns</h2>
         {% for cform in columns %}
-{#            {{ columns.non_field_errors }}#}
+            {#            {{ columns.non_field_errors }}#}
             <div class="column-form">
                 {{ cform.as_table }}
                 <a href="#" class="columnmodel_set-0-delete_column text-danger delete_column"
@@ -61,7 +61,7 @@
         function columnTypeChangeCallback(event) {
             event.preventDefault()
 
-            let columnType= event.target
+            let columnType = event.target
             columnTypeChange(columnType);
         }
 
@@ -73,7 +73,7 @@
             elementCheckbox.checked = true;
             {# reset value for deleted column #}
             this.parentElement.setAttribute('style', 'display:none;');
-            this.parentElement.querySelectorAll('input').forEach(elem=>elem.removeAttribute('required'))
+            this.parentElement.querySelectorAll('input').forEach(elem => elem.removeAttribute('required'))
         }
 
         function columnTypeChange(columnType) {
@@ -89,13 +89,17 @@
             if (columnType.value !== 'integer') {
                 label_from.style.visibility = "hidden";
                 input_from.style.visibility = "hidden";
+                input_from.removeAttribute('required');
                 label_to.style.visibility = "hidden";
                 input_to.style.visibility = "hidden";
+                input_to.removeAttribute('required');
             } else {
                 label_from.style.visibility = "";
                 input_from.style.visibility = "";
+                input_from.setAttribute('required', 'true');
                 label_to.style.visibility = "";
                 input_to.style.visibility = "";
+                input_to.setAttribute('required', 'true');
             }
         }
 
@@ -125,7 +129,7 @@
 
             // Insert form in page
             container.insertBefore(newForm, addButton);
-            newForm.querySelectorAll('input').forEach(elem=>elem.value='')
+            newForm.querySelectorAll('input').forEach(elem => elem.value = '')
 
             // Update total forms count
             totalForms.setAttribute('value', `${formNum + 1}`);
