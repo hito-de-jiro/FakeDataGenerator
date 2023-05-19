@@ -87,15 +87,17 @@
             if (columnType.value !== 'integer') {
                 label_from.style.visibility = "hidden";
                 input_from.style.visibility = "hidden";
+                input_from.removeAttribute('required');
                 label_to.style.visibility = "hidden";
                 input_to.style.visibility = "hidden";
+                input_to.removeAttribute('required');
             } else {
                 label_from.style.visibility = "";
                 input_from.style.visibility = "";
-                input_from.value = "16";
+                input_from.setAttribute('required', 'true');
                 label_to.style.visibility = "";
                 input_to.style.visibility = "";
-                input_to.value = "60"
+                input_to.setAttribute('required', 'true');
             }
         }
 

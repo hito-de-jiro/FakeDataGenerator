@@ -3,35 +3,39 @@ import csv
 from faker import Faker
 
 
-def generate_fake_value(fake, data_type, range_from=18, range_to=60):
+def generate_fake_value(fake, data_type, range_from=0, range_to=0):
     """Generate a single fake value of a given type"""
     if data_type == 'fullname':
         return fake.name()
-    elif data_type == 'age':
+
+    elif data_type == 'integer':
         return fake.random_int(range_from, range_to)
+
     elif data_type == 'phone':
         return fake.phone_number()
     elif data_type == 'email':
         return fake.email()
     elif data_type == 'address':
-        return fake.address()
+        return fake.address().replace('\n', ' ')
 
 
-def generate_fake_data(num: int, name_type_dict: dict, range_from=18, range_to=60) -> iter:
+def generate_fake_data(num: int, data_dict: dict) -> iter:
     """Generate fake data as a generator"""
     fake = Faker()
 
     for _ in range(int(num)):
         row = {}
-        for data_name, data_type in name_type_dict.items():
-            row[data_name] = generate_fake_value(fake, data_type, range_from, range_to)
+        for name, data in data_dict.items():
+            row[name] = generate_fake_value(fake, data[0], data[1], data[2])
+
         yield row
 
 
 def save_data(data_iter: iter, file_name: str, delimiter: str, quotechar: str,
-              name_type_dict: dict):
+              data_dict: dict):
     """Save created data to CSV file"""
-    fieldnames = name_type_dict.keys()
+    fieldnames = data_dict.keys()
+
     with open(file_name, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames,
                                 delimiter=delimiter,
@@ -45,22 +49,18 @@ def save_data(data_iter: iter, file_name: str, delimiter: str, quotechar: str,
 def run_process(data,
                 id_dataset,
                 num: int,
-                name_type_dict: dict,
+                data_dict: dict,
                 file_name: str,
-                range_from: int,
-                range_to: int,
                 delimiter: str,
                 quotechar: str):
     """Starting the creation process"""
     data_iter = generate_fake_data(num=num,
-                                   range_from=range_from,
-                                   range_to=range_to,
-                                   name_type_dict=name_type_dict)
+                                   data_dict=data_dict)
     save_data(data_iter,
               delimiter=delimiter,
               quotechar=quotechar,
               file_name=file_name,
-              name_type_dict=name_type_dict,
+              data_dict=data_dict
               )
 
     get_set_ready(data,

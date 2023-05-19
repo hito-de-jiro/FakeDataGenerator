@@ -12,23 +12,25 @@
             {{ form.as_p }}
         </div>
         <div class="button-info">
-            <button type="submit" value="Update">Update</button>
+            <button type="submit" value="Update" class="btn btn-success">Update</button>
         </div>
 
         <h2>Schema columns</h2>
         {% for cform in columns %}
-{#            {{ columns.non_field_errors }}#}
+            {#            {{ columns.non_field_errors }}#}
             <div class="column-form">
                 {{ cform.as_table }}
                 <a href="#" class="columnmodel_set-0-delete_column text-danger delete_column"
                    style="text-decoration: none">delete</a>
             </div>
         {% endfor %}
-        <button id="add-form" type="button">Add column</button>
+        <button id="add-form" type="button" class="btn btn-primary">Add column</button>
 
     </form>
 
     <script>
+
+
         // Add event for delete first column
         const allDeleteColumnByClass = document.getElementsByClassName('delete_column');
 
@@ -59,7 +61,7 @@
         function columnTypeChangeCallback(event) {
             event.preventDefault()
 
-            let columnType= event.target
+            let columnType = event.target
             columnTypeChange(columnType);
         }
 
@@ -71,7 +73,7 @@
             elementCheckbox.checked = true;
             {# reset value for deleted column #}
             this.parentElement.setAttribute('style', 'display:none;');
-            this.parentElement.querySelectorAll('input').forEach(elem=>elem.removeAttribute('required'))
+            this.parentElement.querySelectorAll('input').forEach(elem => elem.removeAttribute('required'))
         }
 
         function columnTypeChange(columnType) {
@@ -84,16 +86,20 @@
             let label_to = document.querySelector("label[for='" + to_id + "']");
             let input_to = document.getElementById(to_id);
 
-            if (columnType.value !== 'age') {
+            if (columnType.value !== 'integer') {
                 label_from.style.visibility = "hidden";
                 input_from.style.visibility = "hidden";
+                input_from.removeAttribute('required');
                 label_to.style.visibility = "hidden";
                 input_to.style.visibility = "hidden";
+                input_to.removeAttribute('required');
             } else {
                 label_from.style.visibility = "";
                 input_from.style.visibility = "";
+                input_from.setAttribute('required', 'true');
                 label_to.style.visibility = "";
                 input_to.style.visibility = "";
+                input_to.setAttribute('required', 'true');
             }
         }
 
@@ -123,7 +129,7 @@
 
             // Insert form in page
             container.insertBefore(newForm, addButton);
-            newForm.querySelectorAll('input').forEach(elem=>elem.value='')
+            newForm.querySelectorAll('input').forEach(elem => elem.value = '')
 
             // Update total forms count
             totalForms.setAttribute('value', `${formNum + 1}`);

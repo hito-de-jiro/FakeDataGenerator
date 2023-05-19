@@ -44,8 +44,8 @@ class ColumnModel(models.Model):
                             verbose_name='Column type',
                             default='fullname',
                             choices=TYPE_COLUMN)
-    range_from = models.PositiveSmallIntegerField(default=16, verbose_name='From', null=True, blank=True)
-    range_to = models.PositiveSmallIntegerField(default=65, verbose_name='To', null=True, blank=True)
+    range_from = models.PositiveIntegerField(verbose_name='From', null=True, blank=True)
+    range_to = models.PositiveIntegerField(verbose_name='To', null=True, blank=True)
     schema = models.ForeignKey(SchemaModel, on_delete=models.CASCADE, null=True)
     order = models.PositiveSmallIntegerField(verbose_name='Order', null=True, blank=True)
 
@@ -60,7 +60,7 @@ class ColumnModel(models.Model):
 
 class DatasetModel(models.Model):
     created = models.DateField(auto_now_add=True, verbose_name='Created')
-    status = models.CharField(default='Processing...', max_length=45,
+    status = models.CharField(max_length=45,
                               null=True, verbose_name='Status')
     file = models.CharField(default='File does not exist.', max_length=100, null=True, verbose_name='path_to_file')
     schema = models.ForeignKey(SchemaModel, on_delete=models.CASCADE, null=True)
