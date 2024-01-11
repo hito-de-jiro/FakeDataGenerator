@@ -1,0 +1,50 @@
+# docker-compose.yml
+version: '3'
+
+services:
+  # Django Service
+  django:
+    build:
+      context: .
+    restart: always
+    container_name: 'django'
+    command: >
+      sh -c "python manage.py makemigrations &&
+                           python manage.py migrate &&
+                           python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./app:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+
+  # Celery service
+  celery:
+    build: .
+    command: celery -A app worker -l INFO
+    container_name: 'celery'
+    volumes:
+      - ./app:/app
+    environment:
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - django
+      - redis
+
+  # Redis service
+  redis:
+    image: 'redis:alpine'
+    restart: always
+    container_name: 'redis'
+    command: redis-server
+    ports:
+      - '6379:6379'
