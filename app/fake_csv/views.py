@@ -16,6 +16,8 @@ from .forms import AddColumnFormSet, LoginForm, SchemaForm
 from .generator_data import run_process
 from .models import SchemaModel, DatasetModel, ColumnModel
 
+from celery import shared_task
+
 
 class SchemaListView(ListView):
     model = SchemaModel
@@ -113,6 +115,7 @@ def detail_schema(request, pk):
         return reverse("schema_list")
 
 
+@shared_task()
 @login_required
 def create_dataset(request, pk):
     """Create dataset."""
