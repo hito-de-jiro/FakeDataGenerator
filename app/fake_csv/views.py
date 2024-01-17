@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, DeleteView
 
+from app.celery import app
 from .forms import AddColumnFormSet, LoginForm, SchemaForm
 from .generator_data import run_process
 from .models import SchemaModel, DatasetModel, ColumnModel
@@ -115,7 +116,7 @@ def detail_schema(request, pk):
         return reverse("schema_list")
 
 
-@shared_task()
+@app.task()
 @login_required
 def create_dataset(request, pk):
     """Create dataset."""
@@ -131,17 +132,26 @@ def create_dataset(request, pk):
     data = DatasetModel(schema_id=parent_id)
 
     id_dataset = get_set_processing(data)
+    # Added Multithreading
+    # thr = threading.Thread(target=run_process, args=(data,
+    #                                                  id_dataset,
+    #                                                  num_rows,
+    #                                                  data_dict,
+    #                                                  file_name,
+    #                                                  column_separator,
+    #                                                  string_character,
+    #                                                  ), daemon=True)
+    #
+    # thr.start()
 
-    thr = threading.Thread(target=run_process, args=(data,
-                                                     id_dataset,
-                                                     num_rows,
-                                                     data_dict,
-                                                     file_name,
-                                                     column_separator,
-                                                     string_character,
-                                                     ), daemon=True)
-
-    thr.start()
+    run_process(data,
+                id_dataset,
+                num_rows,
+                data_dict,
+                file_name,
+                column_separator,
+                string_character,
+                )
 
     return redirect('schema_detail', pk=pk)
 
