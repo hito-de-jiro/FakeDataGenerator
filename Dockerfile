@@ -1,16 +1,14 @@
-# pull official base image
-FROM python:3
+FROM python:3.9-alpine3.16
 
-RUN pip install pipenv
-# copy project
+COPY requirements.txt /temp/requirements.txt
 COPY app /app
-# set work directory
 WORKDIR /app
+EXPOSE 8000
 
-# set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-# install dependencies
-COPY Pipfile* /app/
-RUN pipenv install --system --deploy --ignore-pipfile
+
+RUN pip install -r /temp/requirements.txt
+
+RUN adduser --disabled-password service-user
 ADD app /app/

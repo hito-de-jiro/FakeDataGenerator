@@ -3,7 +3,7 @@ version: '3'
 
 services:
   # Django Service
-  django:
+  web-app:
     build:
       context: .
     restart: always
@@ -21,13 +21,14 @@ services:
       - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_BACKEND=redis://redis:6379/0
-    depends_on:
-      - redis
 
   # Celery service
-  celery:
-    build: .
-    command: celery -A app worker -l INFO
+  worker:
+    build:
+      context: .
+    hostname: worker
+    entrypoint: celery
+    command: -A app worker -l INFO
     container_name: 'celery'
     volumes:
       - ./app:/app
@@ -36,13 +37,14 @@ services:
       - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_BACKEND=redis://redis:6379/0
+    links:
+      - redis
     depends_on:
-      - django
       - redis
 
   # Redis service
   redis:
-    image: 'redis:alpine'
+    image: 'redis:alpine3.16'
     restart: always
     container_name: 'redis'
     command: redis-server
