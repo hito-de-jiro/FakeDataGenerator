@@ -1,5 +1,6 @@
 from django.urls import path
 
+from .tasks import create_dataset
 from .views import (
     user_login,
     SchemaListView,
@@ -7,7 +8,6 @@ from .views import (
     SchemaDeleteView,
     update_schema,
     detail_schema,
-    create_dataset
 )
 
 urlpatterns = [

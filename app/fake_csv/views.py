@@ -1,8 +1,3 @@
-import os
-import threading
-from datetime import datetime
-
-from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -12,12 +7,8 @@ from django.urls import reverse
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, DeleteView
 
-from app.celery import app
 from .forms import AddColumnFormSet, LoginForm, SchemaForm
-from .generator_data import run_process
-from .models import SchemaModel, DatasetModel, ColumnModel
-
-from celery import shared_task
+from .models import SchemaModel, DatasetModel
 
 
 class SchemaListView(ListView):
@@ -114,46 +105,6 @@ def detail_schema(request, pk):
         return render(request, 'fake_csv/schema_detail.html', context=context)
     else:
         return reverse("schema_list")
-
-
-@app.task()
-@login_required
-def create_dataset(request, pk):
-    """Create dataset."""
-    now = datetime.now().strftime("%d%m%Y_%H%M%S")
-    parent_obj = get_object_or_404(SchemaModel, pk=pk)
-    parent_id = parent_obj.id
-    columns = ColumnModel.objects.filter(schema_id=parent_id)
-    num_rows = request.POST['rows']
-    data_dict = {column.name: [column.type, column.range_from, column.range_to] for column in columns}
-    file_name = os.path.join(settings.MEDIA_ROOT, f'{parent_obj.name}_{now}.csv')
-    column_separator = parent_obj.column_separator
-    string_character = parent_obj.string_character
-    data = DatasetModel(schema_id=parent_id)
-
-    id_dataset = get_set_processing(data)
-    # Added Multithreading
-    # thr = threading.Thread(target=run_process, args=(data,
-    #                                                  id_dataset,
-    #                                                  num_rows,
-    #                                                  data_dict,
-    #                                                  file_name,
-    #                                                  column_separator,
-    #                                                  string_character,
-    #                                                  ), daemon=True)
-    #
-    # thr.start()
-
-    run_process(data,
-                id_dataset,
-                num_rows,
-                data_dict,
-                file_name,
-                column_separator,
-                string_character,
-                )
-
-    return redirect('schema_detail', pk=pk)
 
 
 def get_set_processing(data):
