@@ -2,17 +2,15 @@
 import os
 from datetime import datetime
 
+from app.celery import app
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
-
-from app.celery import app
 from fake_csv.generator_data import run_process
 from fake_csv.models import SchemaModel, ColumnModel, DatasetModel
 from fake_csv.views import get_set_processing
 
 
-@app.task()
 @login_required
 def create_dataset(request, pk):
     """Create dataset."""
@@ -28,25 +26,15 @@ def create_dataset(request, pk):
     data = DatasetModel(schema_id=parent_id)
 
     id_dataset = get_set_processing(data)
-    # Added Multithreading
-    # thr = threading.Thread(target=run_process, args=(data,
-    #                                                  id_dataset,
-    #                                                  num_rows,
-    #                                                  data_dict,
-    #                                                  file_name,
-    #                                                  column_separator,
-    #                                                  string_character,
-    #                                                  ), daemon=True)
-    #
-    # thr.start()
 
-    run_process(data,
-                id_dataset,
-                num_rows,
-                data_dict,
-                file_name,
-                column_separator,
-                string_character,
-                )
+    # Run celery task
+    run_process.delay(data,
+                      id_dataset,
+                      num_rows,
+                      data_dict,
+                      file_name,
+                      column_separator,
+                      string_character,
+                      )
 
     return redirect('schema_detail', pk=pk)

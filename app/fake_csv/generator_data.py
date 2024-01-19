@@ -1,6 +1,7 @@
 import csv
 
 from faker import Faker
+from app.celery import app
 
 
 def generate_fake_value(fake, data_type, range_from=0, range_to=0):
@@ -46,6 +47,7 @@ def save_data(data_iter: iter, file_name: str, delimiter: str, quotechar: str,
             writer.writerow(row)
 
 
+@app.task(serializer='pickle')
 def run_process(data,
                 id_dataset,
                 num: int,

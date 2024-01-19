@@ -2,7 +2,6 @@
 version: '3'
 
 services:
-  # Django Service
   django:
     build:
       context: .
@@ -12,8 +11,6 @@ services:
       sh -c "python manage.py makemigrations &&
                            python manage.py migrate &&
                            python manage.py runserver 0.0.0.0:8000"
-    #    volumes:
-    #      - ./app:/app
     ports:
       - "8000:8000"
     environment:
@@ -28,16 +25,14 @@ services:
     depends_on:
       - database
 
-  # Database
   database:
     image: postgres:14.6-alpine
-
+    container_name: 'database'
     environment:
       - POSTGRES_DB=dbname
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=pass
 
-  # Celery service
   worker:
     build:
       context: .
@@ -45,8 +40,6 @@ services:
     entrypoint: celery
     command: -A app worker -l INFO
     container_name: 'celery'
-    #    volumes:
-    #      - ./app:/app
     environment:
       - DEBUG=1
       - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
@@ -62,7 +55,6 @@ services:
       - redis
       - database
 
-  # Redis service
   redis:
     image: 'redis:alpine3.16'
     restart: always
