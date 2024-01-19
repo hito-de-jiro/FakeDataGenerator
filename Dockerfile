@@ -8,6 +8,9 @@ EXPOSE 8000
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+RUN apk add postgresql-client build-base postgresql-dev
+
+RUN python -m pip install --upgrade pip
 RUN pip install -r /temp/requirements.txt
 
 RUN adduser --disabled-password service-user

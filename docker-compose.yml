@@ -12,8 +12,8 @@ services:
       sh -c "python manage.py makemigrations &&
                            python manage.py migrate &&
                            python manage.py runserver 0.0.0.0:8000"
-#    volumes:
-#      - ./app:/app
+    #    volumes:
+    #      - ./app:/app
     ports:
       - "8000:8000"
     environment:
@@ -21,6 +21,21 @@ services:
       - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_BACKEND=redis://redis:6379/0
+      - DB_HOST=database
+      - DB_NAME=dbname
+      - DB_USER=dbuser
+      - DB_PASS=pass
+    depends_on:
+      - database
+
+  # Database
+  database:
+    image: postgres:14.6-alpine
+
+    environment:
+      - POSTGRES_DB=dbname
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=pass
 
   # Celery service
   worker:
@@ -30,17 +45,22 @@ services:
     entrypoint: celery
     command: -A app worker -l INFO
     container_name: 'celery'
-#    volumes:
-#      - ./app:/app
+    #    volumes:
+    #      - ./app:/app
     environment:
       - DEBUG=1
       - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_BACKEND=redis://redis:6379/0
+      - DB_HOST=database
+      - DB_NAME=dbname
+      - DB_USER=dbuser
+      - DB_PASS=pass
     links:
       - redis
     depends_on:
       - redis
+      - database
 
   # Redis service
   redis:
