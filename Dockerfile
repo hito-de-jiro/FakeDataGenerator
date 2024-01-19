@@ -11,4 +11,3 @@ ENV PYTHONUNBUFFERED 1
 RUN pip install -r /temp/requirements.txt
 
 RUN adduser --disabled-password service-user
-ADD app /app/
