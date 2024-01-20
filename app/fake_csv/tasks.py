@@ -1,11 +1,9 @@
 # fake_csv/tasks.py
-import os
 from datetime import datetime
 
-from app.celery import app
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
+
 from fake_csv.generator_data import run_process
 from fake_csv.models import SchemaModel, ColumnModel, DatasetModel
 from fake_csv.views import get_set_processing
@@ -20,7 +18,7 @@ def create_dataset(request, pk):
     columns = ColumnModel.objects.filter(schema_id=parent_id)
     num_rows = request.POST['rows']
     data_dict = {column.name: [column.type, column.range_from, column.range_to] for column in columns}
-    file_name = os.path.join(settings.MEDIA_ROOT, f'{parent_obj.name}_{now}.csv')
+    file_name = f'{parent_obj.name}_{now}.csv'
     column_separator = parent_obj.column_separator
     string_character = parent_obj.string_character
     data = DatasetModel(schema_id=parent_id)
