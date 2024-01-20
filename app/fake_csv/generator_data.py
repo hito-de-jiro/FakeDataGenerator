@@ -1,6 +1,9 @@
 import csv
+import os
 
+from django.conf import settings
 from faker import Faker
+from app.celery import app
 
 
 def generate_fake_value(fake, data_type, range_from=0, range_to=0):
@@ -36,7 +39,7 @@ def save_data(data_iter: iter, file_name: str, delimiter: str, quotechar: str,
     """Save created data to CSV file"""
     fieldnames = data_dict.keys()
 
-    with open(file_name, 'w', newline='') as f:
+    with open(os.path.join(settings.MEDIA_ROOT, file_name), 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames,
                                 delimiter=delimiter,
                                 quotechar=quotechar,
@@ -46,6 +49,7 @@ def save_data(data_iter: iter, file_name: str, delimiter: str, quotechar: str,
             writer.writerow(row)
 
 
+@app.task(serializer='pickle')
 def run_process(data,
                 id_dataset,
                 num: int,

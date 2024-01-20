@@ -1,0 +1,77 @@
+# docker-compose.yml
+version: '3'
+
+services:
+  django:
+    build:
+      context: .
+    restart: always
+    container_name: 'django'
+    command: >
+      sh -c "python manage.py makemigrations &&
+                           python manage.py migrate &&
+                           python manage.py runserver 0.0.0.0:8000 &&
+                           python manage.py collectstatic"
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+      - DB_HOST=database
+      - DB_NAME=dbname
+      - DB_USER=dbuser
+      - DB_PASS=pass
+    depends_on:
+      - database
+
+  database:
+    image: postgres:14.6-alpine
+    container_name: 'database'
+    volumes:
+      - postgres_data:/app/postgresql/
+    environment:
+      - POSTGRES_DB=dbname
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=pass
+
+  worker:
+    build:
+      context: .
+    hostname: worker
+    entrypoint: celery
+    command: -A app worker -l INFO
+    container_name: 'celery'
+    environment:
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+      - DB_HOST=database
+      - DB_NAME=dbname
+      - DB_USER=dbuser
+      - DB_PASS=pass
+    links:
+      - redis
+    volumes:
+      - media_volume:/app/media
+    depends_on:
+      - redis
+      - database
+
+  redis:
+    image: 'redis:alpine3.16'
+    restart: always
+    container_name: 'redis'
+    command: redis-server
+    ports:
+      - '6379:6379'
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
