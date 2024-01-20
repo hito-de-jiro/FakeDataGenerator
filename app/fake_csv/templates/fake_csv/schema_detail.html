@@ -16,6 +16,9 @@
         <div class="bd-example-snippet bd-code-snippet">
             <div class="bd-example">
                 <table class="table table-sm table-bordered">
+                    <caption>Schema that is ready to create datasets. To create dataset, enter the required number of
+                        records and click "Create data".
+                    </caption>
                     <thead>
                     <tr>
                         <th scope="col">#</th>
@@ -47,12 +50,13 @@
 
             <form action="{% url 'create_dataset' form.instance.id %}" method="post">
                 {% csrf_token %}
-                <div class="col col-lg-4">
-                    <label for="rows">Rows:</label>
-                    <input type="number" required min="0" id="rows" name="rows">
+                <div class="form-group row">
+                    <div class="col col-lg-4 form-check">
+                        <label for="rows">Rows:</label>
+                        <input type="number" required min="0" id="rows" name="rows">
+                    </div>
                 </div>
-
-                <div class="col col-lg-4">
+                <div class="col-md-auto justify-content-end">
                     <button type="submit" class="btn btn-success">Generate data</button>
                 </div>
             </form>
@@ -64,6 +68,7 @@
         <div class="bd-example-snippet bd-code-snippet">
             <div class="bd-example">
                 <table class="table table-sm table-bordered">
+                    <caption>List of created datasets.</caption>
                     <thead>
                     <tr>
                         <th scope="col">#</th>

@@ -20,6 +20,10 @@
         <div class="bd-example-snippet bd-code-snippet">
             <div class="bd-example">
                 <table class="table table-sm table-bordered">
+                    <caption>Press on the name of the scheme to go to the creation of the data set. To edit, click "Edit
+                        Scheme". To remove, click "Delete schema".
+                    </caption>
+
                     <thead>
                     <tr>
                         <th scope="col">#</th>
@@ -35,9 +39,9 @@
                             <td><a class="text-primary" href="{% url 'schema_detail' schema.id %}">{{ schema.name }}</a>
                             </td>
                             <td>{{ schema.modified | date }}</td>
-                            <td><a href="{% url 'schema_edit' schema.id %}">Edit schema</a>
+                            <td><a href="{% url 'schema_edit' schema.id %}">Edit schema  </a>
                                 <a href="{% url 'schema_delete' schema.id %}">
-                                    <span class="text-danger">  Delete</span></a></td>
+                                    <span class="text-danger">  Delete schema</span></a></td>
                         </tr>
 
                         {% empty %}
