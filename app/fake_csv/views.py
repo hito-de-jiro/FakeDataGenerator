@@ -107,14 +107,6 @@ def detail_schema(request, pk):
         return reverse("schema_list")
 
 
-def get_set_processing(data):
-    """Set the status of the started file"""
-    data.status = 'Processing'
-    data.save()
-    id_dataset = data.id
-    return id_dataset
-
-
 def user_login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)

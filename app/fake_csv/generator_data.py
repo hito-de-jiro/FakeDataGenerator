@@ -5,6 +5,8 @@ from django.conf import settings
 from faker import Faker
 from app.celery import app
 
+from fake_csv.models import DatasetModel
+
 
 def generate_fake_value(fake, data_type, range_from=0, range_to=0):
     """Generate a single fake value of a given type"""
@@ -22,11 +24,11 @@ def generate_fake_value(fake, data_type, range_from=0, range_to=0):
         return fake.address().replace('\n', ' ')
 
 
-def generate_fake_data(num: int, data_dict: dict) -> iter:
+def generate_fake_data(num_rows: int, data_dict: dict) -> iter:
     """Generate fake data as a generator"""
     fake = Faker()
 
-    for _ in range(int(num)):
+    for _ in range(int(num_rows)):
         row = {}
         for name, data in data_dict.items():
             row[name] = generate_fake_value(fake, data[0], data[1], data[2])
@@ -34,47 +36,50 @@ def generate_fake_data(num: int, data_dict: dict) -> iter:
         yield row
 
 
-def save_data(data_iter: iter, file_name: str, delimiter: str, quotechar: str,
-              data_dict: dict):
+def save_data(
+        parent_id: int,
+        data_iter: iter,
+        file_name: str,
+        delimiter: str,
+        quotechar: str,
+        data_dict: dict):
     """Save created data to CSV file"""
+    # Started create file, write status - 'In processing'
+    data = DatasetModel(schema_id=parent_id)
+    data.status = 'In processing'
+    data.save()
+    # Create and save csv file
     fieldnames = data_dict.keys()
-
     with open(os.path.join(settings.MEDIA_ROOT, file_name), 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames,
-                                delimiter=delimiter,
-                                quotechar=quotechar,
-                                )
+        writer = csv.DictWriter(
+            f, fieldnames=fieldnames,
+            delimiter=delimiter,
+            quotechar=quotechar,
+        )
         writer.writeheader()
         for row in data_iter:
             writer.writerow(row)
+    # File is ready, status in database changed to 'Data is ready'
+    data.status = 'Data is ready'
+    data.file = file_name
+    data.save()
 
 
-@app.task(serializer='pickle')
-def run_process(data,
-                id_dataset,
-                num: int,
-                data_dict: dict,
-                file_name: str,
-                delimiter: str,
-                quotechar: str):
+@app.task()
+def run_process(
+        parent_id: int,
+        num_rows: int,
+        data_dict: dict,
+        file_name: str,
+        delimiter: str,
+        quotechar: str):
     """Starting the creation process"""
-    data_iter = generate_fake_data(num=num,
+    data_iter = generate_fake_data(num_rows=num_rows,
                                    data_dict=data_dict)
-    save_data(data_iter,
-              delimiter=delimiter,
-              quotechar=quotechar,
-              file_name=file_name,
-              data_dict=data_dict
-              )
-
-    get_set_ready(data,
-                  id_dataset,
-                  file_name)
-
-
-def get_set_ready(data, id_dataset, file_name):
-    """Set the status of the finished file"""
-    if id_dataset:
-        data.status = 'Ready'
-        data.file = file_name
-        data.save()
+    save_data(
+        parent_id,
+        data_iter,
+        delimiter=delimiter,
+        quotechar=quotechar,
+        file_name=file_name,
+        data_dict=data_dict)

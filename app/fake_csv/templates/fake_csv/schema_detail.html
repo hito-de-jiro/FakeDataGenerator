@@ -84,14 +84,10 @@
                             <th scope="row">{{ forloop.counter }}</th>
                             <td>{{ dataset.created }}</td>
                             <td>
-                                {% if dataset.status == 'Ready' %}
-                                    <span class="btn btn-success">{{ dataset.status }}</span>
-                                {% else %}
-                                    <span class="btn btn-info">{{ dataset.status }}</span>
-                                {% endif %}
+                                <span id="dataset-status">{{ dataset.status }}</span>
                             </td>
                             <td>
-                                {% if dataset.status == 'Ready' %}
+                                {% if dataset.status == 'Data is ready' %}
                                     <a class="text-primary" href="{{ MEDIA_URL }}{{ dataset.file }}">Download</a>
                                 {% else %}
                                     <a class="text-primary" href="{{ MEDIA_URL }}{{ dataset.file }}"
