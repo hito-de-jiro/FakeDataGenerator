@@ -22,22 +22,22 @@ services:
       - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_BACKEND=redis://redis:6379/0
-      - DB_HOST=database
-      - DB_NAME=dbname
-      - DB_USER=dbuser
-      - DB_PASS=pass
-    depends_on:
-      - database
+#      - DB_HOST=database
+#      - DB_NAME=dbname
+#      - DB_USER=dbuser
+#      - DB_PASS=pass
+#    depends_on:
+#      - database
 
-  database:
-    image: postgres:14.6-alpine
-    container_name: 'database'
-    volumes:
-      - postgres_data:/app/postgresql/
-    environment:
-      - POSTGRES_DB=dbname
-      - POSTGRES_USER=dbuser
-      - POSTGRES_PASSWORD=pass
+#  database:
+#    image: postgres:14.6-alpine
+#    container_name: 'database'
+#    volumes:
+#      - postgres_data:/app/postgresql/
+#    environment:
+#      - POSTGRES_DB=dbname
+#      - POSTGRES_USER=dbuser
+#      - POSTGRES_PASSWORD=pass
 
   worker:
     build:
@@ -51,17 +51,17 @@ services:
       - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_BACKEND=redis://redis:6379/0
-      - DB_HOST=database
-      - DB_NAME=dbname
-      - DB_USER=dbuser
-      - DB_PASS=pass
+#      - DB_HOST=database
+#      - DB_NAME=dbname
+#      - DB_USER=dbuser
+#      - DB_PASS=pass
     links:
       - redis
     volumes:
       - media_volume:/app/media
     depends_on:
       - redis
-      - database
+#      - database
 
   redis:
     image: 'redis:alpine3.16'
@@ -72,6 +72,6 @@ services:
       - '6379:6379'
 
 volumes:
-  postgres_data:
+#  postgres_data:
   static_volume:
   media_volume:

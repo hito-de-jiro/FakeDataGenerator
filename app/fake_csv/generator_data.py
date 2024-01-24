@@ -1,11 +1,13 @@
+# fake_csv/generator_data.py
 import csv
 import os
 
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 from faker import Faker
-# from app.celery import app  # comment for threading
 
 from fake_csv.models import DatasetModel
+# from app.celery import app  # comment for threading
 
 
 def generate_fake_value(fake, data_type, range_from=0, range_to=0):
@@ -37,17 +39,13 @@ def generate_fake_data(num_rows: int, data_dict: dict) -> iter:
 
 
 def save_data(
-        parent_id: int,
+        pk_dataset: int,
         data_iter: iter,
         file_name: str,
         delimiter: str,
         quotechar: str,
         data_dict: dict):
     """Save created data to CSV file"""
-    # Started create file, write status - 'In processing'
-    data = DatasetModel(schema_id=parent_id)
-    data.status = 'In processing'
-    data.save()
     # Create and save csv file
     fieldnames = data_dict.keys()
     with open(os.path.join(settings.MEDIA_ROOT, file_name), 'w', newline='') as f:
@@ -59,25 +57,31 @@ def save_data(
         writer.writeheader()
         for row in data_iter:
             writer.writerow(row)
-    # File is ready, status in database changed to 'Data is ready'
-    data.status = 'Data is ready'
+    # File is ready, status in database changed to 'Ready'
+    data = get_object_or_404(DatasetModel, pk=pk_dataset)
+    data.status = 'Ready'
     data.file = file_name
     data.save()
 
 
 # @app.task()  # comment for threading
 def run_process(
-        parent_id: int,
+        pk_dataset: int,
         num_rows: int,
         data_dict: dict,
         file_name: str,
         delimiter: str,
         quotechar: str):
     """Starting the creation process"""
+    # status - In processing
+    data = get_object_or_404(DatasetModel, pk=pk_dataset)
+    data.status = 'In processing'
+    data.save()
+
     data_iter = generate_fake_data(num_rows=num_rows,
                                    data_dict=data_dict)
     save_data(
-        parent_id,
+        pk_dataset,
         data_iter,
         delimiter=delimiter,
         quotechar=quotechar,

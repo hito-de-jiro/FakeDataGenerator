@@ -87,7 +87,7 @@
                                 <span id="dataset-status">{{ dataset.status }}</span>
                             </td>
                             <td>
-                                {% if dataset.status == 'Data is ready' %}
+                                {% if dataset.status == 'Ready' %}
                                     <a class="text-primary" href="{{ MEDIA_URL }}{{ dataset.file }}">Download</a>
                                 {% else %}
                                     <a class="text-primary" href="{{ MEDIA_URL }}{{ dataset.file }}"
