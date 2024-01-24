@@ -3,7 +3,7 @@ import os
 
 from django.conf import settings
 from faker import Faker
-from app.celery import app
+# from app.celery import app  # comment for threading
 
 from fake_csv.models import DatasetModel
 
@@ -65,7 +65,7 @@ def save_data(
     data.save()
 
 
-@app.task()
+# @app.task()  # comment for threading
 def run_process(
         parent_id: int,
         num_rows: int,

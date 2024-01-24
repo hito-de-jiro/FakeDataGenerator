@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -8,7 +10,8 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView, DeleteView
 
 from .forms import AddColumnFormSet, LoginForm, SchemaForm
-from .models import SchemaModel, DatasetModel
+from .models import SchemaModel, DatasetModel, ColumnModel
+from .tasks import create_dataset_task
 
 
 class SchemaListView(ListView):
@@ -105,6 +108,30 @@ def detail_schema(request, pk):
         return render(request, 'fake_csv/schema_detail.html', context=context)
     else:
         return reverse("schema_list")
+
+
+@login_required
+def create_dataset(request, pk):
+    """Create dataset."""
+    now = datetime.now().strftime("%d%m%Y_%H%M%S")
+    parent_obj = get_object_or_404(SchemaModel, pk=pk)
+    parent_id = parent_obj.id
+    columns = ColumnModel.objects.filter(schema_id=parent_id)
+
+    num_rows = request.POST['rows']
+    data_dict = {column.name: [column.type, column.range_from, column.range_to] for column in columns}
+    file_name = f'{parent_obj.name}_{now}.csv'
+    column_separator = parent_obj.column_separator
+    string_character = parent_obj.string_character
+
+    create_dataset_task(parent_id,
+                        num_rows,
+                        data_dict,
+                        file_name,
+                        column_separator,
+                        string_character, )
+
+    return redirect('schema_detail', pk=pk)
 
 
 def user_login(request):

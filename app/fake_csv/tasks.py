@@ -1,34 +1,34 @@
 # fake_csv/tasks.py
-from datetime import datetime
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect
+import threading
 
 from fake_csv.generator_data import run_process
-from fake_csv.models import SchemaModel, ColumnModel
 
 
-@login_required
-def create_dataset(request, pk):
+def create_dataset_task(
+        parent_id,
+        num_rows,
+        data_dict,
+        file_name,
+        column_separator,
+        string_character, ):
     """Create dataset."""
-    now = datetime.now().strftime("%d%m%Y_%H%M%S")
-    parent_obj = get_object_or_404(SchemaModel, pk=pk)
-    parent_id = parent_obj.id
-    columns = ColumnModel.objects.filter(schema_id=parent_id)
-
-    num_rows = request.POST['rows']
-    data_dict = {column.name: [column.type, column.range_from, column.range_to] for column in columns}
-    file_name = f'{parent_obj.name}_{now}.csv'
-    column_separator = parent_obj.column_separator
-    string_character = parent_obj.string_character
-    # Run celery task
-    run_process.delay(
+    # use celery, comment for threading
+    # run_process.delay(
+    #     parent_id=parent_id,
+    #     num_rows=num_rows,
+    #     data_dict=data_dict,
+    #     file_name=file_name,
+    #     column_separator=column_separator,
+    #     string_character=string_character,
+    # )
+    # use threads, comment for celery
+    thr = threading.Thread(target=run_process, args=(
         parent_id,
         num_rows,
         data_dict,
         file_name,
         column_separator,
         string_character,
-    )
+    ), daemon=True)
 
-    return redirect('schema_detail', pk=pk)
+    thr.start()
