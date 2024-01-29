@@ -67,7 +67,7 @@
     <div class="table-container">
         <div class="bd-example-snippet bd-code-snippet">
             <div class="bd-example">
-                <table class="table table-sm table-bordered">
+                <table class="table table-sm table-bordered" id="table-datasets">
                     <caption>List of created datasets.</caption>
                     <thead>
                     <tr>
@@ -102,5 +102,15 @@
             </div>
         </div>
     </div>
+    <script>
+        let table = $('#table-datasets').DataTable( {
+           ajax: "data.json"
+        });
+
+        setInterval(function () {
+            table.ajax.reload(  null, false );
+        }, 10000);
+
+    </script>
 
 {% endblock %}
