@@ -114,7 +114,7 @@ def detail_schema(request, pk):
 @login_required
 def create_dataset(request, pk):
     """Create dataset."""
-    now = datetime.now().strftime("%d%m%Y_%H%M%S")
+    now = datetime.now().strftime("%d%m%Y_%H%M%S_%f")[:-3]
     parent_obj = get_object_or_404(SchemaModel, pk=pk)
     parent_id = parent_obj.id
     columns = ColumnModel.objects.filter(schema_id=parent_id)
@@ -125,8 +125,14 @@ def create_dataset(request, pk):
     column_separator = parent_obj.column_separator
     string_character = parent_obj.string_character
 
+    # set status -- Wait
+    data = DatasetModel(schema_id=parent_id)
+    data.status = 'Wait'
+    data.save()
+    pk_dataset = data.id
+
     create_dataset_task(
-        parent_id,
+        pk_dataset,
         num_rows,
         data_dict,
         file_name,

@@ -1,13 +1,13 @@
 # fake_csv/generator_data.py
 import csv
 import os
+import time
 
 from django.conf import settings
-from django.shortcuts import get_object_or_404
 from faker import Faker
 
+from app.celery import app  # comment for threading
 from fake_csv.models import DatasetModel
-# from app.celery import app  # comment for threading
 
 
 def generate_fake_value(fake, data_type, range_from=0, range_to=0):
@@ -58,13 +58,18 @@ def save_data(
         for row in data_iter:
             writer.writerow(row)
     # File is ready, status in database changed to 'Ready'
-    data = get_object_or_404(DatasetModel, pk=pk_dataset)
-    data.status = 'Ready'
+    status = 'Ready'
+    set_status(file_name, pk_dataset, status)
+
+
+def set_status(file_name, pk_dataset, status):
+    data = DatasetModel.objects.get(id=pk_dataset)
+    data.status = status
     data.file = file_name
     data.save()
 
 
-# @app.task()  # comment for threading
+@app.task()  # comment for threading
 def run_process(
         pk_dataset: int,
         num_rows: int,
@@ -73,11 +78,8 @@ def run_process(
         delimiter: str,
         quotechar: str):
     """Starting the creation process"""
-    # status - In processing
-    data = get_object_or_404(DatasetModel, pk=pk_dataset)
-    data.status = 'In processing'
-    data.save()
-
+    status = 'Running'
+    set_status(file_name, pk_dataset, status)
     data_iter = generate_fake_data(num_rows=num_rows,
                                    data_dict=data_dict)
     save_data(

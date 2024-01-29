@@ -13,6 +13,7 @@ services:
                            python manage.py runserver 0.0.0.0:8000 &&
                            python manage.py collectstatic"
     volumes:
+#      - ./app:/app
       - static_volume:/app/static
       - media_volume:/app/media
     ports:
@@ -22,22 +23,22 @@ services:
       - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_BACKEND=redis://redis:6379/0
-#      - DB_HOST=database
-#      - DB_NAME=dbname
-#      - DB_USER=dbuser
-#      - DB_PASS=pass
-#    depends_on:
-#      - database
+      - DB_HOST=database
+      - DB_NAME=dbname
+      - DB_USER=dbuser
+      - DB_PASS=pass
+    depends_on:
+      - database
 
-#  database:
-#    image: postgres:14.6-alpine
-#    container_name: 'database'
-#    volumes:
-#      - postgres_data:/app/postgresql/
-#    environment:
-#      - POSTGRES_DB=dbname
-#      - POSTGRES_USER=dbuser
-#      - POSTGRES_PASSWORD=pass
+  database:
+    image: postgres:14.6-alpine
+    container_name: 'database'
+    volumes:
+      - postgres_data:/app/postgresql/
+    environment:
+      - POSTGRES_DB=dbname
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=pass
 
   worker:
     build:
@@ -51,17 +52,19 @@ services:
       - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_BACKEND=redis://redis:6379/0
-#      - DB_HOST=database
-#      - DB_NAME=dbname
-#      - DB_USER=dbuser
-#      - DB_PASS=pass
+      - DB_HOST=database
+      - DB_NAME=dbname
+      - DB_USER=dbuser
+      - DB_PASS=pass
     links:
       - redis
     volumes:
+#      - ./app:/app
+      - static_volume:/app/static
       - media_volume:/app/media
     depends_on:
       - redis
-#      - database
+      - database
 
   redis:
     image: 'redis:alpine3.16'
@@ -71,7 +74,20 @@ services:
     ports:
       - '6379:6379'
 
+  flower:
+    build:
+      context: .
+    hostname: flower
+    entrypoint: celery
+    command: -A app flower
+    links:
+      - redis
+    depends_on:
+      - redis
+    ports:
+      - "5555:5555"
+
 volumes:
-#  postgres_data:
+  postgres_data:
   static_volume:
   media_volume:
