@@ -84,7 +84,16 @@
                             <th scope="row">{{ forloop.counter }}</th>
                             <td>{{ dataset.created }}</td>
                             <td>
-                                <span id="dataset-status">{{ dataset.status }}</span>
+                                {% if dataset.status == 'Wait' %}
+                                    <span id="data-status-{{ dataset.id }}"
+                                          class="dataset badge bg-warning">{{ dataset.status }}</span>
+                                {% elif dataset.status == 'Running' %}
+                                    <span id="data-status-{{ dataset.id }}"
+                                          class="dataset badge badge-primary">{{ dataset.status }}</span>
+                                {% elif dataset.status == 'Ready' %}
+                                    <span id="data-status-{{ dataset.id }}"
+                                          class="dataset badge badge-success">{{ dataset.status }}</span>
+                                {% endif %}
                             </td>
                             <td>
                                 {% if dataset.status == 'Ready' %}
@@ -95,6 +104,31 @@
                                 {% endif %}
                             </td>
                         </tr>
+                        <script>
+
+                            console.log(document.getElementById('data-status-{{ dataset.id }}').id)
+
+                            function foo(el) {
+                                console.log(el)
+                            }
+
+                            if (document.getElementById('data-status-{{ dataset.id }}').innerHTML === "Ready") {
+                                console.log('Interval for dataset: {{ dataset.id }} -- stop');
+                            } else {
+                                console.log('Interval for dataset: {{ dataset.id }} -- start');
+                            }
+
+                            const myInterval = setInterval(checkDatasetStatus, 1000);
+
+                            function checkDatasetStatus(element) {
+                                console.log(element)
+                            }
+
+                            function stopInterval() {
+                                clearInterval(myInterval)
+                            }
+
+                        </script>
                         </tbody>
                     {% endfor %}
                 </table>
@@ -102,15 +136,6 @@
             </div>
         </div>
     </div>
-    <script>
-        let table = $('#table-datasets').DataTable( {
-           ajax: "data.json"
-        });
 
-        setInterval(function () {
-            table.ajax.reload(  null, false );
-        }, 10000);
-
-    </script>
 
 {% endblock %}

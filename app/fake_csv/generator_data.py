@@ -1,12 +1,11 @@
 # fake_csv/generator_data.py
 import csv
 import os
-import time
 
 from django.conf import settings
 from faker import Faker
 
-from app.celery import app  # comment for threading
+# from app.celery import app  # comment for threading
 from fake_csv.models import DatasetModel
 
 
@@ -69,7 +68,7 @@ def set_status(file_name, pk_dataset, status):
     data.save()
 
 
-@app.task()  # comment for threading
+# @app.task()  # comment for threading
 def run_process(
         pk_dataset: int,
         num_rows: int,
