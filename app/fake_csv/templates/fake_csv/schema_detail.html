@@ -57,7 +57,7 @@
                     </div>
                 </div>
                 <div class="col-md-auto justify-content-end">
-                    <button type="submit" class="btn btn-success">Generate data</button>
+                    <button type="submit" class="btn btn-success" onclick="timerId()">Generate data</button>
                 </div>
             </form>
 
@@ -84,55 +84,64 @@
                             <th scope="row">{{ forloop.counter }}</th>
                             <td>{{ dataset.created }}</td>
                             <td>
-                                {% if dataset.status == 'Wait' %}
-                                    <span id="data-status-{{ dataset.id }}"
-                                          class="dataset badge bg-warning">{{ dataset.status }}</span>
-                                {% elif dataset.status == 'Running' %}
-                                    <span id="data-status-{{ dataset.id }}"
-                                          class="dataset badge badge-primary">{{ dataset.status }}</span>
-                                {% elif dataset.status == 'Ready' %}
-                                    <span id="data-status-{{ dataset.id }}"
-                                          class="dataset badge badge-success">{{ dataset.status }}</span>
-                                {% endif %}
+                                <span id="data-status-{{ dataset.id }}">{{ dataset.status }}</span>
                             </td>
                             <td>
-                                {% if dataset.status == 'Ready' %}
-                                    <a class="text-primary" href="{{ MEDIA_URL }}{{ dataset.file }}">Download</a>
-                                {% else %}
-                                    <a class="text-primary" href="{{ MEDIA_URL }}{{ dataset.file }}"
-                                       style="display: none;">Download</a>
-                                {% endif %}
+                                <a id="link-{{ dataset.id }}"
+                                   href="{{ MEDIA_URL }}{{ dataset.file }}">Download</a>
                             </td>
                         </tr>
                         <script>
-
+                            // Timer
                             var timerId = setTimeout(function tick() {
-                                console.log('{{ dataset.status }}');
+
+                                $.ajax({
+                                    url: '{% url "ajax_detail" form.instance.id  dataset.id %}',
+                                    type: "GET",
+                                    dataType: "json",
+                                    success: (data) => {
+                                        let status = data['context'];
+                                        if (status === 'Ready') {
+                                            document.getElementById('data-status-{{ dataset.id }}').innerHTML = 'Ready';
+                                        }
+                                        console.log(status);
+                                    },
+                                    error: (error) => {
+                                        console.log(error);
+                                    }
+                                });
+
                                 timerId = setTimeout(tick, 1000);
                             }, 1000);
 
+                            var datasetStatus = document.getElementById('data-status-{{ dataset.id }}');
+                            var datasetLink = document.getElementById('link-{{ dataset.id }}');
 
+                            if (datasetStatus.innerHTML === 'Ready') {
 
-                            if (document.getElementById('data-status-{{ dataset.id }}').innerHTML === 'Ready') {
-                                clearTimeout(timerId);
                                 console.log('Status dataset ID:{{ dataset.id }} is Ready');
-                            } else {
-                                var status = document.getElementById('data-status-{{ dataset.id }}').innerHTML
-                                console.log('Dataset ID:{{ dataset.id }} has a status ' + status);
-                            }
+                                datasetStatus.className = "dataset badge badge-success";
+                                datasetLink.className = "text-primary";
 
-                            $.ajax({
-                                url: '{% url "ajax_detail" form.instance.id  dataset.id %}',
-                                type: "GET",
-                                dataType: "json",
-                                success: (data) => {
-                                    var datasetStatus = data['context'];
-                                    console.log('Status: ' + datasetStatus);
-                                },
-                                error: (error) => {
-                                    console.log(error);
-                                }
-                            });
+                                clearTimeout(timerId);
+
+                            } else if (datasetStatus.innerHTML === 'Wait') {
+
+                                console.log('Wait');
+                                datasetStatus.className = "dataset badge badge-warning";
+                                datasetLink.style.display = "none";
+
+                            } else if (datasetStatus.innerHTML === 'Running') {
+
+                                console.log('Running')
+                                datasetStatus.className = "dataset badge badge-primary";
+                                datasetLink.style.display = "none";
+
+                            } else {
+                                datasetStatus.innerHTML = 'Error';
+                                datasetStatus.className = "dataset badge badge-danger";
+                                datasetLink.style.display = "none";
+                            }
 
                         </script>
                         </tbody>
@@ -142,6 +151,5 @@
             </div>
         </div>
     </div>
-
 
 {% endblock %}

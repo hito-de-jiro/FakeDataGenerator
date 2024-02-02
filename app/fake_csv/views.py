@@ -1,5 +1,4 @@
 # fake_csv/views.py
-import time
 from datetime import datetime
 
 from django.contrib.auth import authenticate, login
@@ -112,13 +111,13 @@ def detail_schema(request, pk):
         return reverse("schema_list")
 
 
-def status_dataset(request, pk, id):
+def status_dataset(request, pk, id_dataset):
     """Get dataset status."""
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     if is_ajax:
         if request.method == "GET":
-            dataset = DatasetModel.objects.get(id=id)
+            dataset = DatasetModel.objects.get(id=id_dataset)
 
             return JsonResponse({'context': dataset.status})
 
