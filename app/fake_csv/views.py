@@ -5,7 +5,7 @@ from datetime import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import ListView
@@ -110,6 +110,21 @@ def detail_schema(request, pk):
         return render(request, 'fake_csv/schema_detail.html', context=context)
     else:
         return reverse("schema_list")
+
+
+def status_dataset(request, pk, id):
+    """Get dataset status."""
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    if is_ajax:
+        if request.method == "GET":
+            dataset = DatasetModel.objects.get(id=id)
+
+            return JsonResponse({'context': dataset.status})
+
+        return JsonResponse({'status': 'Invalid request'}, status=400)
+    else:
+        return HttpResponseBadRequest('Invalid request')
 
 
 @login_required

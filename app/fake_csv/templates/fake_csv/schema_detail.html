@@ -111,14 +111,28 @@
                                 timerId = setTimeout(tick, 1000);
                             }, 1000);
 
+
+
                             if (document.getElementById('data-status-{{ dataset.id }}').innerHTML === 'Ready') {
                                 clearTimeout(timerId);
                                 console.log('Status dataset ID:{{ dataset.id }} is Ready');
                             } else {
                                 var status = document.getElementById('data-status-{{ dataset.id }}').innerHTML
                                 console.log('Dataset ID:{{ dataset.id }} has a status ' + status);
-
                             }
+
+                            $.ajax({
+                                url: '{% url "ajax_detail" form.instance.id  dataset.id %}',
+                                type: "GET",
+                                dataType: "json",
+                                success: (data) => {
+                                    var datasetStatus = data['context'];
+                                    console.log('Status: ' + datasetStatus);
+                                },
+                                error: (error) => {
+                                    console.log(error);
+                                }
+                            });
 
                         </script>
                         </tbody>
