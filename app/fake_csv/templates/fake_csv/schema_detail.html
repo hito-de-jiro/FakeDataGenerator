@@ -106,26 +106,18 @@
                         </tr>
                         <script>
 
-                            console.log(document.getElementById('data-status-{{ dataset.id }}').id)
+                            var timerId = setTimeout(function tick() {
+                                console.log('{{ dataset.status }}');
+                                timerId = setTimeout(tick, 1000);
+                            }, 1000);
 
-                            function foo(el) {
-                                console.log(el)
-                            }
-
-                            if (document.getElementById('data-status-{{ dataset.id }}').innerHTML === "Ready") {
-                                console.log('Interval for dataset: {{ dataset.id }} -- stop');
+                            if (document.getElementById('data-status-{{ dataset.id }}').innerHTML === 'Ready') {
+                                clearTimeout(timerId);
+                                console.log('Status dataset ID:{{ dataset.id }} is Ready');
                             } else {
-                                console.log('Interval for dataset: {{ dataset.id }} -- start');
-                            }
+                                var status = document.getElementById('data-status-{{ dataset.id }}').innerHTML
+                                console.log('Dataset ID:{{ dataset.id }} has a status ' + status);
 
-                            const myInterval = setInterval(checkDatasetStatus, 1000);
-
-                            function checkDatasetStatus(element) {
-                                console.log(element)
-                            }
-
-                            function stopInterval() {
-                                clearInterval(myInterval)
                             }
 
                         </script>
