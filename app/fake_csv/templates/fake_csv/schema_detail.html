@@ -57,7 +57,7 @@
                     </div>
                 </div>
                 <div class="col-md-auto justify-content-end">
-                    <button type="submit" class="btn btn-success" onclick="timerId()">Generate data</button>
+                    <button type="submit" class="btn btn-success">Generate data</button>
                 </div>
             </form>
 
@@ -87,61 +87,68 @@
                                 <span id="data-status-{{ dataset.id }}">{{ dataset.status }}</span>
                             </td>
                             <td>
-                                <a id="link-{{ dataset.id }}"
-                                   href="{{ MEDIA_URL }}{{ dataset.file }}">Download</a>
+                                {% if dataset.status == 'Ready' %}
+                                    <a class="text-primary" id="link-{{ dataset.id }}"
+                                       href="{{ MEDIA_URL }}{{ dataset.file }}">Download</a>
+                                {% else %}
+                                    <a class="text-primary" id="link-{{ dataset.id }}"
+                                       href="{{ MEDIA_URL }}{{ dataset.file }}"
+                                       style="display: none;">Download</a>
+                                {% endif %}
                             </td>
                         </tr>
+
                         <script>
-                            // Timer
-                            var timerId = setTimeout(function tick() {
-
-                                $.ajax({
-                                    url: '{% url "ajax_detail" form.instance.id  dataset.id %}',
-                                    type: "GET",
-                                    dataType: "json",
-                                    success: (data) => {
-                                        let status = data['context'];
-                                        if (status === 'Ready') {
-                                            document.getElementById('data-status-{{ dataset.id }}').innerHTML = 'Ready';
-                                        }
-                                        console.log(status);
-                                    },
-                                    error: (error) => {
-                                        console.log(error);
-                                    }
-                                });
-
-                                timerId = setTimeout(tick, 1000);
-                            }, 1000);
-
                             var datasetStatus = document.getElementById('data-status-{{ dataset.id }}');
                             var datasetLink = document.getElementById('link-{{ dataset.id }}');
 
-                            if (datasetStatus.innerHTML === 'Ready') {
+                            var statusDataset;
+                            $.ajax({
+                                url: '{% url "ajax_detail"  dataset.id %}',
+                                type: "GET",
+                                dataType: "json",
+                                success: (data) => {
+                                    console.log(111);
+                                    statusDataset = data['context'];
+                                },
+                                error: (error) => {
+                                    console.log(error);
+                                }
+                            });
 
-                                console.log('Status dataset ID:{{ dataset.id }} is Ready');
-                                datasetStatus.className = "dataset badge badge-success";
-                                datasetLink.className = "text-primary";
 
-                                clearTimeout(timerId);
-
-                            } else if (datasetStatus.innerHTML === 'Wait') {
-
-                                console.log('Wait');
-                                datasetStatus.className = "dataset badge badge-warning";
-                                datasetLink.style.display = "none";
-
-                            } else if (datasetStatus.innerHTML === 'Running') {
-
-                                console.log('Running')
-                                datasetStatus.className = "dataset badge badge-primary";
-                                datasetLink.style.display = "none";
+                            if (statusDataset === 'Ready') {
+                                console.log(2222);
+                                datasetLink.style.display = '';
 
                             } else {
-                                datasetStatus.innerHTML = 'Error';
-                                datasetStatus.className = "dataset badge badge-danger";
-                                datasetLink.style.display = "none";
+                                console.log(3333)
                             }
+
+
+                            {#if (datasetStatus.innerText === 'Ready') {#}
+                            {#    console.log(11111)#}
+                            {#    datasetStatus.className = "dataset badge badge-success";#}
+                            {#    datasetLink.className = "text-primary";#}
+                            {##}
+                            //{#} else
+                            //   if (datasetStatus.innerText === 'Wait') {#}
+                            {#    console.log('Wait');#}
+                            {#    datasetStatus.className = "dataset badge badge-warning";#}
+                            {#    datasetLink.style.display = "none";#}
+                            {##}
+                            //   {#} else
+                            //           if (datasetStatus.innerText === 'Running') {
+                            //#}
+                            {#    console.log('Running')#}
+                            {#    datasetStatus.className = "dataset badge badge-primary";#}
+                            {#    datasetLink.style.display = "none";#}
+                            {##}
+                            // {#} else {#}
+                            {#    datasetStatus.innerText = 'Error';#}
+                            {#    datasetStatus.className = "dataset badge badge-danger";#}
+                            {#    datasetLink.style.display = "none";#}
+                            // {#}#}
 
                         </script>
                         </tbody>
