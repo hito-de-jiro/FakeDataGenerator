@@ -64,6 +64,7 @@
         </div>
     </div>
 
+    <br>
     <div class="table-container">
         <div class="bd-example-snippet bd-code-snippet">
             <div class="bd-example">
@@ -84,73 +85,22 @@
                             <th scope="row">{{ forloop.counter }}</th>
                             <td>{{ dataset.created }}</td>
                             <td>
-                                <span id="data-status-{{ dataset.id }}">{{ dataset.status }}</span>
+                                <span class="status data-status-{{ dataset.id }}">{{ dataset.status }}</span>
                             </td>
                             <td>
                                 {% if dataset.status == 'Ready' %}
-                                    <a class="text-primary" id="link-{{ dataset.id }}"
-                                       href="{{ MEDIA_URL }}{{ dataset.file }}">Download</a>
+                                    <a class="text-primary dataset-link link-{{ dataset.id }}"
+                                       href="{{ MEDIA_URL }}{{ dataset.file }}"
+                                    >Download</a>
                                 {% else %}
-                                    <a class="text-primary" id="link-{{ dataset.id }}"
+                                    <a class="text-primary dataset-link link-{{ dataset.id }}"
                                        href="{{ MEDIA_URL }}{{ dataset.file }}"
                                        style="display: none;">Download</a>
                                 {% endif %}
+
                             </td>
                         </tr>
 
-                        <script>
-                            var datasetStatus = document.getElementById('data-status-{{ dataset.id }}');
-                            var datasetLink = document.getElementById('link-{{ dataset.id }}');
-
-                            var statusDataset;
-                            $.ajax({
-                                url: '{% url "ajax_detail"  dataset.id %}',
-                                type: "GET",
-                                dataType: "json",
-                                success: (data) => {
-                                    console.log(111);
-                                    statusDataset = data['context'];
-                                },
-                                error: (error) => {
-                                    console.log(error);
-                                }
-                            });
-
-
-                            if (statusDataset === 'Ready') {
-                                console.log(2222);
-                                datasetLink.style.display = '';
-
-                            } else {
-                                console.log(3333)
-                            }
-
-
-                            {#if (datasetStatus.innerText === 'Ready') {#}
-                            {#    console.log(11111)#}
-                            {#    datasetStatus.className = "dataset badge badge-success";#}
-                            {#    datasetLink.className = "text-primary";#}
-                            {##}
-                            //{#} else
-                            //   if (datasetStatus.innerText === 'Wait') {#}
-                            {#    console.log('Wait');#}
-                            {#    datasetStatus.className = "dataset badge badge-warning";#}
-                            {#    datasetLink.style.display = "none";#}
-                            {##}
-                            //   {#} else
-                            //           if (datasetStatus.innerText === 'Running') {
-                            //#}
-                            {#    console.log('Running')#}
-                            {#    datasetStatus.className = "dataset badge badge-primary";#}
-                            {#    datasetLink.style.display = "none";#}
-                            {##}
-                            // {#} else {#}
-                            {#    datasetStatus.innerText = 'Error';#}
-                            {#    datasetStatus.className = "dataset badge badge-danger";#}
-                            {#    datasetLink.style.display = "none";#}
-                            // {#}#}
-
-                        </script>
                         </tbody>
                     {% endfor %}
                 </table>
@@ -159,4 +109,38 @@
         </div>
     </div>
 
+    <script>
+
+        var dataStatuses = document.getElementsByClassName('status');
+
+        if (!dataStatuses.length) {
+            console.log('Statuses is empty');
+        }
+
+        for (let dataStatus of dataStatuses) {
+            let datasetID = dataStatus.className.split('-')[2];
+            console.log(dataStatus.innerHTML);
+            if (String(dataStatus.innerHTML) !== 'Ready') {
+                getAjax(datasetID);
+                console.log(11111);
+            } else if (String(dataStatus.innerHTML) !== 'Running') {
+                console.log(2222);
+            }
+        }
+
+        function getAjax(datasetID) {
+            $.ajax({
+                url: 'ajax/' + datasetID,
+                type: "GET",
+                dataType: "json",
+                success: (data) => {
+                    console.log('AJAX: ' + data['context']);
+                },
+                error: (error) => {
+                    console.log(error);
+                }
+            });
+        }
+
+    </script>
 {% endblock %}
