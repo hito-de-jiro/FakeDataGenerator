@@ -68,8 +68,7 @@
     <div class="table-container">
         <div class="bd-example-snippet bd-code-snippet">
             <div class="bd-example">
-
-                <table class="table table-sm table-bordered">
+                <table class="table table-sm table-bordered" id="table-datasets">
                     <caption>List of created datasets.</caption>
                     <thead>
                     <tr>
@@ -89,14 +88,27 @@
                                 <span class="status data-status-{{ dataset.id }}">{{ dataset.status }}</span>
                             </td>
                             <td>
+
                                 <a class="text-primary"
                                    id="link-id-{{ dataset.id }}"
                                    href="{{ MEDIA_URL }}{{ dataset.file }}"
                                    style="display: none;">Download</a>
+
+                                {#                                {% if dataset.status == 'Ready' %}#}
+                                {#                                    <a class="text-primary dataset-link link-{{ dataset.id }}"#}
+                                {#                                       href="{{ MEDIA_URL }}{{ dataset.file }}"#}
+                                {#                                    >Download</a>#}
+                                {#                                {% else %}#}
+                                {#                                    <a class="text-primary dataset-link link-{{ dataset.id }}"#}
+                                {#                                       id="link-id-{{ dataset.id }}"#}
+                                {#                                       href="{{ MEDIA_URL }}{{ dataset.file }}"#}
+                                {#                                       style="display: none;">Download</a>#}
+                                {#                                {% endif %}#}
+
                             </td>
                         </tr>
-                        </tbody>
 
+                        </tbody>
                     {% endfor %}
                 </table>
 
@@ -106,34 +118,40 @@
 
     <script>
 
-        let dataStatuses = document.getElementsByClassName('status');
+        var dataStatuses = document.getElementsByClassName('status');
 
         if (!dataStatuses.length) {
             console.log('Statuses is empty');
         }
 
         for (let dataStatus of dataStatuses) {
+
             let datasetID = dataStatus.className.split('-')[2];
-            let dataLink = document.getElementById('link-id-' + datasetID);
+            let dataLink = document.getElementById('link-id-' + datasetID)
+            console.log('FOR: ' + datasetID + '--' + dataStatus.innerHTML);
+
             if (String(dataStatus.innerHTML) === 'Ready') {
                 dataLink.style = null;
             }
+            //console.log(dataLink.style = null)
 
             let i = 0;
             while (String(dataStatus.innerHTML) !== 'Ready' && i < 100) {
                 getAjax(datasetID, dataStatus, dataLink);
-                console.log('Looop!');
-                i++;
+                //console.log('Looop!');
 
+                {#console.log("Check -- " + dataStatus.innerText)#}
                 if (String(dataStatus.innerHTML) === 'Ready') {
+                    //console.log(11111)
                     dataLink.style = null;
                 }
-
-                if (i >= 100000) break;
+                i++;
+                if (i >= 1000000) break;
             }
         }
 
-        function getAjax(datasetID, dataStatus, dataLink) {
+
+        async function getAjax(datasetID, dataStatus, dataLink) {
             $.ajax({
                 url: 'ajax/' + datasetID,
                 type: "GET",
@@ -143,6 +161,8 @@
                     if (String(data['context']) === 'Ready') {
                         dataStatus.innerText = data['context']; // and remove style?
                         dataLink.style = null;
+                    } else {
+                        console.log('not ready')
                     }
                 },
                 error: (error) => {
