@@ -11,6 +11,7 @@ def create_dataset_task(
         file_name: str,
         column_separator: str,
         string_character: str):
+
     # Use threading
     thr = threading.Thread(target=run_process, args=(
         pk_dataset,
@@ -20,8 +21,8 @@ def create_dataset_task(
         column_separator,
         string_character,
     ), daemon=True)
-
     thr.start()
+
     # for Celery it is necessary to uncomment
     # run_process.delay(
     #     pk_dataset,

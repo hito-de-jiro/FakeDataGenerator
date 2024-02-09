@@ -85,7 +85,8 @@
                             <th scope="row">{{ forloop.counter }}</th>
                             <td>{{ dataset.created }}</td>
                             <td>
-                                <span class="status data-status-{{ dataset.id }}">{{ dataset.status }}</span>
+                                <span id="status-{{ dataset.id }}"
+                                      class="status data-status-{{ dataset.id }}">{{ dataset.status }}</span>
                             </td>
                             <td>
 
@@ -93,17 +94,6 @@
                                    id="link-id-{{ dataset.id }}"
                                    href="{{ MEDIA_URL }}{{ dataset.file }}"
                                    style="display: none;">Download</a>
-
-                                {#                                {% if dataset.status == 'Ready' %}#}
-                                {#                                    <a class="text-primary dataset-link link-{{ dataset.id }}"#}
-                                {#                                       href="{{ MEDIA_URL }}{{ dataset.file }}"#}
-                                {#                                    >Download</a>#}
-                                {#                                {% else %}#}
-                                {#                                    <a class="text-primary dataset-link link-{{ dataset.id }}"#}
-                                {#                                       id="link-id-{{ dataset.id }}"#}
-                                {#                                       href="{{ MEDIA_URL }}{{ dataset.file }}"#}
-                                {#                                       style="display: none;">Download</a>#}
-                                {#                                {% endif %}#}
 
                             </td>
                         </tr>
@@ -118,7 +108,8 @@
 
     <script>
 
-        var dataStatuses = document.getElementsByClassName('status');
+        let dataStatuses = document.getElementsByClassName('status');
+
 
         if (!dataStatuses.length) {
             console.log('Statuses is empty');
@@ -128,7 +119,7 @@
 
             let datasetID = dataStatus.className.split('-')[2];
             let dataLink = document.getElementById('link-id-' + datasetID)
-            console.log('FOR: ' + datasetID + '--' + dataStatus.innerHTML);
+            //console.log('FOR: ' + datasetID + '--' + dataStatus.innerHTML);
 
             if (String(dataStatus.innerHTML) === 'Ready') {
                 dataLink.style = null;
@@ -136,28 +127,32 @@
             //console.log(dataLink.style = null)
 
             let i = 0;
-            while (String(dataStatus.innerHTML) !== 'Ready' && i < 100) {
+            let flag = dataStatus.innerHTML;
+            console.log('1111' + flag)
+            while (flag !== 'Ready' && i < 100) {
                 getAjax(datasetID, dataStatus, dataLink);
                 //console.log('Looop!');
 
                 {#console.log("Check -- " + dataStatus.innerText)#}
-                if (String(dataStatus.innerHTML) === 'Ready') {
-                    //console.log(11111)
-                    dataLink.style = null;
-                }
+                //if (String(dataStatus.innerHTML) === 'Ready') {
+                //    console.log(11111)
+                //    dataLink.style = null;
+                //}
+                flag = document.getElementById('status-' + datasetID).innerText
+                console.log('2222 ' + flag)
+                if (flag === 'Ready') break;
                 i++;
-                if (i >= 1000000) break;
             }
         }
 
 
-        async function getAjax(datasetID, dataStatus, dataLink) {
+        function getAjax(datasetID, dataStatus, dataLink) {
             $.ajax({
                 url: 'ajax/' + datasetID,
                 type: "GET",
                 dataType: "json",
                 success: (data) => {
-                    console.log('AJAX: ' + data['context']);
+                    {#console.log('AJAX: ' + data['context']);#}
                     if (String(data['context']) === 'Ready') {
                         dataStatus.innerText = data['context']; // and remove style?
                         dataLink.style = null;
@@ -170,6 +165,18 @@
                 }
             });
 
+        }
+
+        //let ajaxInterval = setInterval(ajaxFoo, 1000);
+        let i = 0;
+
+        function ajaxFoo() {
+            console.log('Counter: ' + i)
+            i++;
+
+            if (i >= 10) {
+                clearInterval(ajaxInterval);
+            }
         }
 
     </script>
