@@ -109,43 +109,54 @@
     <script>
 
         let dataStatuses = document.getElementsByClassName('status');
+        if (!dataStatuses.length) console.log('Statuses is empty');
 
-
-        if (!dataStatuses.length) {
-            console.log('Statuses is empty');
-        }
+        {#let flag = true;#}
+        {#while (flag) {#}
+        {#    console.log('WHILE');#}
+        {#    for (let dataStatus of dataStatuses) {#}
+        {#        let datasetID = dataStatus.className.split('-')[2];#}
+        {#        let dataLink = document.getElementById('link-id-' + datasetID)#}
+        {#        if (String(dataStatus.innerHTML) === 'Ready') dataLink.style = null;#}
+        {#        let ajaxInterval = setInterval(getAjax, 1000, datasetID, dataStatus, dataLink);#}
+        {#        flag = false;#}
+        {#        if (!flag) clearInterval(ajaxInterval);#}
+        {#    }#}
+        //}
 
         for (let dataStatus of dataStatuses) {
-
             let datasetID = dataStatus.className.split('-')[2];
             let dataLink = document.getElementById('link-id-' + datasetID)
-            //console.log('FOR: ' + datasetID + '--' + dataStatus.innerHTML);
+            if (String(dataStatus.innerHTML) === 'Ready') dataLink.style = null;
+            //set interval 1 sec
+            //let ajaxInterval = setInterval(getAjax, 1000, datasetID, dataStatus, dataLink);
+            {#getAjax(datasetID, dataStatus, dataLink);#}
 
-            if (String(dataStatus.innerHTML) === 'Ready') {
-                dataLink.style = null;
-            }
-            //console.log(dataLink.style = null)
+            let flag = document.getElementById('status-' + datasetID).innerText;
+            console.log('FOR: ' + flag);
 
-            let i = 0;
-            let flag = dataStatus.innerHTML;
-            console.log('1111' + flag)
-            while (flag !== 'Ready' && i < 100) {
-                getAjax(datasetID, dataStatus, dataLink);
-                //console.log('Looop!');
+            //if (flag === 'Ready') clearInterval(ajaxInterval);
 
-                {#console.log("Check -- " + dataStatus.innerText)#}
-                //if (String(dataStatus.innerHTML) === 'Ready') {
-                //    console.log(11111)
-                //    dataLink.style = null;
-                //}
-                flag = document.getElementById('status-' + datasetID).innerText
-                console.log('2222 ' + flag)
-                if (flag === 'Ready') break;
-                i++;
-            }
+            {#let i = 0;#}
+            {#let flag = dataStatus.innerHTML;#}
+            {#console.log('1111' + flag)#}
+            {#while (flag !== 'Ready' && i < 100) {#}
+            {#    getAjax(datasetID, dataStatus, dataLink);#}
+            {#    console.log('Looop!');#}
+            {##}
+            {#console.log("Check -- " + dataStatus.innerText)#}
+            {#    if (String(dataStatus.innerHTML) === 'Ready') {#}
+            {#        console.log(11111)#}
+            {#        dataLink.style = null;#}
+            {#    }#}
+            {#    flag = document.getElementById('status-' + datasetID).innerText#}
+            {#    console.log('2222 ' + flag)#}
+            {#    if (flag === 'Ready') break;#}
+            {#    i++;#}
+            //}
         }
 
-
+        let interval;
         function getAjax(datasetID, dataStatus, dataLink) {
             $.ajax({
                 url: 'ajax/' + datasetID,
@@ -154,29 +165,24 @@
                 success: (data) => {
                     {#console.log('AJAX: ' + data['context']);#}
                     if (String(data['context']) === 'Ready') {
-                        dataStatus.innerText = data['context']; // and remove style?
+                        dataStatus.innerText = data['context'];
                         dataLink.style = null;
+                        console.log('ready');
+
                     } else {
-                        console.log('not ready')
+                        console.log('not ready');
+                        interval = setInterval(getAjax, 1000, datasetID);
+                        console.log(33333333);
                     }
                 },
                 error: (error) => {
                     console.log(error);
+                },
+                complete: () => {
+                    clearInterval(interval);
+                    //clearInterval(ajaxInterval);
                 }
             });
-
-        }
-
-        //let ajaxInterval = setInterval(ajaxFoo, 1000);
-        let i = 0;
-
-        function ajaxFoo() {
-            console.log('Counter: ' + i)
-            i++;
-
-            if (i >= 10) {
-                clearInterval(ajaxInterval);
-            }
         }
 
     </script>
