@@ -13,6 +13,7 @@ services:
                            python manage.py runserver 0.0.0.0:8000 &&
                            python manage.py collectstatic"
     volumes:
+#      - ./app:/app
       - static_volume:/app/static
       - media_volume:/app/media
     ports:
@@ -58,6 +59,8 @@ services:
     links:
       - redis
     volumes:
+#      - ./app:/app
+      - static_volume:/app/static
       - media_volume:/app/media
     depends_on:
       - redis
@@ -70,6 +73,19 @@ services:
     command: redis-server
     ports:
       - '6379:6379'
+
+  flower:
+    build:
+      context: .
+    hostname: flower
+    entrypoint: celery
+    command: -A app flower
+    links:
+      - redis
+    depends_on:
+      - redis
+    ports:
+      - "5555:5555"
 
 volumes:
   postgres_data:

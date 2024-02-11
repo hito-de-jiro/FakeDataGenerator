@@ -21,3 +21,4 @@ gen
 
 venv
 
+!/app/db.sqlite3

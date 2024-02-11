@@ -1,0 +1,6 @@
+Django==4.2.1
+Faker==18.7.0
+celery[redis]==5.3.6
+redis==5.0.1
+flower==2.0.0
+psycopg2==2.9.9

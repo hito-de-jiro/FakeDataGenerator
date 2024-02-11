@@ -1,14 +1,18 @@
+# fake_csv/views.py
+from datetime import datetime
+
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, DeleteView
 
 from .forms import AddColumnFormSet, LoginForm, SchemaForm
-from .models import SchemaModel, DatasetModel
+from .models import SchemaModel, DatasetModel, ColumnModel
+from .tasks import create_dataset_task
 
 
 class SchemaListView(ListView):
@@ -91,6 +95,7 @@ class SchemaDeleteView(LoginRequiredMixin, DeleteView):
 @login_required
 def detail_schema(request, pk):
     if request.method == 'GET':
+        # do fix double request
         parent_obj = get_object_or_404(SchemaModel, pk=pk)
         parent_id = parent_obj.id
         parent_form = SchemaForm(instance=parent_obj)
@@ -107,12 +112,49 @@ def detail_schema(request, pk):
         return reverse("schema_list")
 
 
-def get_set_processing(data):
-    """Set the status of the started file"""
-    data.status = 'Processing'
+def status_dataset(request, pk, id):
+    """Get dataset status."""
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    if is_ajax:
+        if request.method == "GET":
+            dataset = DatasetModel.objects.get(id=id)
+            return JsonResponse({'context': dataset.status})
+
+        return JsonResponse({'status': 'Invalid request'}, status=400)
+    else:
+        return HttpResponseBadRequest('Invalid request')
+
+
+@login_required
+def create_dataset(request, pk):
+    """Create dataset."""
+    now = datetime.now().strftime("%d%m%Y_%H%M%S_%f")[:-3]
+    parent_obj = get_object_or_404(SchemaModel, pk=pk)
+    parent_id = parent_obj.id
+    columns = ColumnModel.objects.filter(schema_id=parent_id)
+
+    num_rows = request.POST['rows']
+    data_dict = {column.name: [column.type, column.range_from, column.range_to] for column in columns}
+    file_name = f'{parent_obj.name}_{now}.csv'
+    column_separator = parent_obj.column_separator
+    string_character = parent_obj.string_character
+
+    # set status -- Wait
+    data = DatasetModel(schema_id=parent_id)
+    data.status = 'Wait'
     data.save()
-    id_dataset = data.id
-    return id_dataset
+    pk_dataset = data.id
+
+    create_dataset_task(
+        pk_dataset,
+        num_rows,
+        data_dict,
+        file_name,
+        column_separator,
+        string_character)
+
+    return redirect('schema_detail', pk=pk)
 
 
 def user_login(request):

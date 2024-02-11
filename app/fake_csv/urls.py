@@ -1,6 +1,5 @@
 from django.urls import path
 
-from .tasks import create_dataset
 from .views import (
     user_login,
     SchemaListView,
@@ -8,6 +7,7 @@ from .views import (
     SchemaDeleteView,
     update_schema,
     detail_schema,
+    create_dataset, status_dataset,
 )
 
 urlpatterns = [
@@ -16,6 +16,7 @@ urlpatterns = [
     path('schemas/<int:pk>/update', update_schema, name='schema_edit'),
     path('schemas/<int:pk>/delete', SchemaDeleteView.as_view(), name='schema_delete'),
     path('schemas/<int:pk>/detail', detail_schema, name='schema_detail'),
+    path('schemas/<int:pk>/ajax/<int:id>', status_dataset, name='ajax_detail'),
     path('schemas/<int:pk>/dataset', create_dataset, name='create_dataset'),
     path('', user_login, name='login'),
 ]

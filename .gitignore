@@ -116,3 +116,4 @@ ENV/
 
 # PyCharm files
 .idea/
+!/app/db.sqlite3

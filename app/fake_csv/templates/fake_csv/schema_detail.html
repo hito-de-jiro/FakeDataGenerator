@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block content %}
     {% include 'fake_csv/header.html' %}
     <div class="container my-4">
@@ -45,9 +44,7 @@
             <div class="col">
                 <h2>Data sets</h2>
             </div>
-            <div class="col-md-auto">
-            </div>
-
+            <br>
             <form action="{% url 'create_dataset' form.instance.id %}" method="post">
                 {% csrf_token %}
                 <div class="form-group row">
@@ -63,11 +60,11 @@
 
         </div>
     </div>
-
+    <br>
     <div class="table-container">
         <div class="bd-example-snippet bd-code-snippet">
             <div class="bd-example">
-                <table class="table table-sm table-bordered">
+                <table class="table table-sm table-bordered" id="table-datasets">
                     <caption>List of created datasets.</caption>
                     <thead>
                     <tr>
@@ -78,33 +75,73 @@
                     </tr>
                     </thead>
                     {% for dataset in datasets %}
-
                         <tbody>
                         <tr>
                             <th scope="row">{{ forloop.counter }}</th>
                             <td>{{ dataset.created }}</td>
                             <td>
-                                {% if dataset.status == 'Ready' %}
-                                    <span class="btn btn-success">{{ dataset.status }}</span>
-                                {% else %}
-                                    <span class="btn btn-info">{{ dataset.status }}</span>
-                                {% endif %}
+                                <span id="status-{{ dataset.id }}"
+                                      class="status data-status-{{ dataset.id }}">{{ dataset.status }}</span>
                             </td>
                             <td>
-                                {% if dataset.status == 'Ready' %}
-                                    <a class="text-primary" href="{{ MEDIA_URL }}{{ dataset.file }}">Download</a>
-                                {% else %}
-                                    <a class="text-primary" href="{{ MEDIA_URL }}{{ dataset.file }}"
-                                       style="display: none;">Download</a>
-                                {% endif %}
+                                <a class="text-primary"
+                                   id="link-id-{{ dataset.id }}"
+                                   href="{{ MEDIA_URL }}{{ dataset.file }}"
+                                   style="display: none;">Download</a>
                             </td>
                         </tr>
                         </tbody>
                     {% endfor %}
                 </table>
-
             </div>
         </div>
     </div>
 
+    <script>
+
+        const dataStatuses = document.getElementsByClassName('status');
+        if (!dataStatuses.length) console.log('Statuses is empty');
+
+        let updateStatus = function (datasetID, dataStatus, dataLink) {
+            console.log("Inside interval " + datasetID)
+            $.ajax({
+                url: 'ajax/' + datasetID,
+                type: "GET",
+                dataType: "json",
+                success: (data) => {
+                    if (String(data['context']) !== 'Ready') {
+                        console.log('not ready ' + datasetID);
+                        console.log('not Ready --' + data['context']);
+                        setTimeout(updateStatus, 200, datasetID, dataStatus, dataLink);
+                    } else {
+                        dataStatus.innerText = data['context'];
+                        dataLink.style = null;
+                        console.log('ready ' + datasetID);
+
+                        console.log('Clear interval ' + datasetID);
+                    }
+                },
+                error: (error) => {
+                    console.log(error);
+                },
+            });
+        }
+
+        let timer;
+        for (let dataStatus of dataStatuses) {
+            let datasetID = dataStatus.className.split('-')[2];
+            console.log("Id " + datasetID)
+            let dataLink = document.getElementById('link-id-' + datasetID)
+            if (String(dataStatus.innerHTML) === 'Ready') {
+                console.log("Skip interval " + datasetID)
+                dataLink.style = null;
+            } else {
+                console.log("Before interval " + datasetID)
+                timer = setTimeout(updateStatus, 1000, datasetID, dataStatus, dataLink);
+                console.log("After interval " + datasetID)
+            }
+        }
+        console.log('Complete FOR')
+
+    </script>
 {% endblock %}
