@@ -95,6 +95,7 @@ class SchemaDeleteView(LoginRequiredMixin, DeleteView):
 @login_required
 def detail_schema(request, pk):
     if request.method == 'GET':
+        # do fix double request
         parent_obj = get_object_or_404(SchemaModel, pk=pk)
         parent_id = parent_obj.id
         parent_form = SchemaForm(instance=parent_obj)

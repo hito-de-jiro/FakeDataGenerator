@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block content %}
     {% include 'fake_csv/header.html' %}
     <div class="container my-4">
@@ -45,9 +44,7 @@
             <div class="col">
                 <h2>Data sets</h2>
             </div>
-            <div class="col-md-auto">
-            </div>
-
+            <br>
             <form action="{% url 'create_dataset' form.instance.id %}" method="post">
                 {% csrf_token %}
                 <div class="form-group row">
@@ -63,7 +60,6 @@
 
         </div>
     </div>
-
     <br>
     <div class="table-container">
         <div class="bd-example-snippet bd-code-snippet">
@@ -79,7 +75,6 @@
                     </tr>
                     </thead>
                     {% for dataset in datasets %}
-
                         <tbody>
                         <tr>
                             <th scope="row">{{ forloop.counter }}</th>
@@ -89,101 +84,64 @@
                                       class="status data-status-{{ dataset.id }}">{{ dataset.status }}</span>
                             </td>
                             <td>
-
                                 <a class="text-primary"
                                    id="link-id-{{ dataset.id }}"
                                    href="{{ MEDIA_URL }}{{ dataset.file }}"
                                    style="display: none;">Download</a>
-
                             </td>
                         </tr>
-
                         </tbody>
                     {% endfor %}
                 </table>
-
             </div>
         </div>
     </div>
 
     <script>
 
-        let dataStatuses = document.getElementsByClassName('status');
+        const dataStatuses = document.getElementsByClassName('status');
         if (!dataStatuses.length) console.log('Statuses is empty');
 
-        {#let flag = true;#}
-        {#while (flag) {#}
-        {#    console.log('WHILE');#}
-        {#    for (let dataStatus of dataStatuses) {#}
-        {#        let datasetID = dataStatus.className.split('-')[2];#}
-        {#        let dataLink = document.getElementById('link-id-' + datasetID)#}
-        {#        if (String(dataStatus.innerHTML) === 'Ready') dataLink.style = null;#}
-        {#        let ajaxInterval = setInterval(getAjax, 1000, datasetID, dataStatus, dataLink);#}
-        {#        flag = false;#}
-        {#        if (!flag) clearInterval(ajaxInterval);#}
-        {#    }#}
-        //}
-
-        for (let dataStatus of dataStatuses) {
-            let datasetID = dataStatus.className.split('-')[2];
-            let dataLink = document.getElementById('link-id-' + datasetID)
-            if (String(dataStatus.innerHTML) === 'Ready') dataLink.style = null;
-            //set interval 1 sec
-            //let ajaxInterval = setInterval(getAjax, 1000, datasetID, dataStatus, dataLink);
-            {#getAjax(datasetID, dataStatus, dataLink);#}
-
-            let flag = document.getElementById('status-' + datasetID).innerText;
-            console.log('FOR: ' + flag);
-
-            //if (flag === 'Ready') clearInterval(ajaxInterval);
-
-            {#let i = 0;#}
-            {#let flag = dataStatus.innerHTML;#}
-            {#console.log('1111' + flag)#}
-            {#while (flag !== 'Ready' && i < 100) {#}
-            {#    getAjax(datasetID, dataStatus, dataLink);#}
-            {#    console.log('Looop!');#}
-            {##}
-            {#console.log("Check -- " + dataStatus.innerText)#}
-            {#    if (String(dataStatus.innerHTML) === 'Ready') {#}
-            {#        console.log(11111)#}
-            {#        dataLink.style = null;#}
-            {#    }#}
-            {#    flag = document.getElementById('status-' + datasetID).innerText#}
-            {#    console.log('2222 ' + flag)#}
-            {#    if (flag === 'Ready') break;#}
-            {#    i++;#}
-            //}
-        }
-
-        let interval;
-        function getAjax(datasetID, dataStatus, dataLink) {
+        let updateStatus = function (datasetID, dataStatus, dataLink) {
+            console.log("Inside interval " + datasetID)
             $.ajax({
                 url: 'ajax/' + datasetID,
                 type: "GET",
                 dataType: "json",
                 success: (data) => {
-                    {#console.log('AJAX: ' + data['context']);#}
-                    if (String(data['context']) === 'Ready') {
+                    if (String(data['context']) !== 'Ready') {
+                        console.log('not ready ' + datasetID);
+                        console.log('not Ready --' + data['context']);
+                        setTimeout(updateStatus, 200, datasetID, dataStatus, dataLink);
+                    } else {
                         dataStatus.innerText = data['context'];
                         dataLink.style = null;
-                        console.log('ready');
+                        console.log('ready ' + datasetID);
 
-                    } else {
-                        console.log('not ready');
-                        interval = setInterval(getAjax, 1000, datasetID);
-                        console.log(33333333);
+                        console.log('Clear interval ' + datasetID);
                     }
                 },
                 error: (error) => {
                     console.log(error);
                 },
-                complete: () => {
-                    clearInterval(interval);
-                    //clearInterval(ajaxInterval);
-                }
             });
         }
+
+        let timer;
+        for (let dataStatus of dataStatuses) {
+            let datasetID = dataStatus.className.split('-')[2];
+            console.log("Id " + datasetID)
+            let dataLink = document.getElementById('link-id-' + datasetID)
+            if (String(dataStatus.innerHTML) === 'Ready') {
+                console.log("Skip interval " + datasetID)
+                dataLink.style = null;
+            } else {
+                console.log("Before interval " + datasetID)
+                timer = setTimeout(updateStatus, 1000, datasetID, dataStatus, dataLink);
+                console.log("After interval " + datasetID)
+            }
+        }
+        console.log('Complete FOR')
 
     </script>
 {% endblock %}
