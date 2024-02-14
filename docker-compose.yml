@@ -13,7 +13,6 @@ services:
                            python manage.py runserver 0.0.0.0:8000 &&
                            python manage.py collectstatic"
     volumes:
-#      - ./app:/app
       - static_volume:/app/static
       - media_volume:/app/media
     ports:
@@ -59,7 +58,6 @@ services:
     links:
       - redis
     volumes:
-#      - ./app:/app
       - static_volume:/app/static
       - media_volume:/app/media
     depends_on:
