@@ -13,38 +13,40 @@ To clone the repository, run the following command.
 git clone https://github.com/hito-de-jiro/FakeDataGenerator.git
 ```
 ## Preparation
-Install Python venv
+Install Python venv.
 ```shell
 pip install virtualenv
 virtualenv venv
 ```
-Activate venv (windows)
+Activate venv (windows).
 ```shell
 venv\Scripts\activate.bat
 ```
 ## Build
-Install dependencies of project
-```shell
-pip install -r requirements.txt
-```
-Go to application folder
-```shell
-cd app
-```
-Make and apply project migrations
-```shell
-python manage.py makemigrations
-python manage.py migrate
-```
+1. Install dependencies of project.
+   ```shell
+   pip install -r requirements.txt
+   ```
+2. Go to application folder.
+   ```shell
+   cd app
+   ```
+3. Make and apply project migrations.
+   ```shell
+   python manage.py makemigrations
+   python manage.py migrate
+   ```
 
-Create superuser
+4. Create superuser.
+   ```shell
+    python manage.py shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', '12345')"
+   ```
+   Will be created superuser  with these data:<br>
+   login: admin<br>
+   mail: admin@example.com<br> 
+   password: 12345
 
-```shell
-python manage.py createsuperuser
-```
-
-Run server
-
+5. Run server.
 ```shell
 python manage.py runserver
 ```
@@ -67,7 +69,7 @@ You will see the status changed to "**Ready**" and a link to **download** data.
     ```shell
     git clone https://github.com/hito-de-jiro/FakeDataGenerator.git
     ```
-2. By default, the program works with threads. For Celery you need to uncomment the code in the following files.:
+2. By default, the program works with threads. To use Celery you need to uncomment the code in the following files:
    ```
    app/__init__.py
    app/settings.py
@@ -78,13 +80,16 @@ You will see the status changed to "**Ready**" and a link to **download** data.
     ```shell
     docker-compose up -d --build
     ```
-4. Create a superuser with these data:<br>
-   login: admin<br>
-   mail: admin@example.com<br> 
-   password: 12345
+4. Create a superuser:<br>
+   
    ```shell
    docker compose run --rm django python manage.py shell -c "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', '12345')"
    ```
+   Will be created superuser  with these data:<br>
+   - login: admin<br>
+   - mail: admin@example.com<br> 
+   - password: 12345<br><br>
+
 5. And start
     ```shell
    docker compose up
@@ -93,6 +98,6 @@ You will see the status changed to "**Ready**" and a link to **download** data.
     ```shell
     docker compose stop
     ```
-
-The app is available at the [link](http://127.0.0.1:8000/) <br>
+<br>
+The app is available at the [link](http://127.0.0.1:8000/)<br>
 To monitor tasks, **Flower** is used, available at [link](http://127.0.0.1:5555/)
