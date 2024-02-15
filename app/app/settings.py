@@ -79,6 +79,7 @@ DATABASES = {
     }
 }
 
+# to use Docker it is necessary to uncomment
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',

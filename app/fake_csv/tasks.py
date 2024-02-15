@@ -11,6 +11,7 @@ def create_dataset_task(
         file_name: str,
         column_separator: str,
         string_character: str):
+    """Run task to create dataset and save it in csv file"""
 
     # Use threading
     thr = threading.Thread(target=run_process, args=(
@@ -23,7 +24,7 @@ def create_dataset_task(
     ), daemon=True)
     thr.start()
 
-    # for Celery it is necessary to uncomment
+    # to use Celery it is necessary to uncomment
     # run_process.delay(
     #     pk_dataset,
     #     num_rows,
