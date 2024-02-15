@@ -65,10 +65,14 @@ You will see the status changed to "**Ready**" and a link to **download** data.
 
 ## Docker build
 
-1. Copy project
+1. Copy project *
     ```shell
     git clone https://github.com/hito-de-jiro/FakeDataGenerator.git
     ```
+   *_If the project is already downloaded and running,<br> 
+   delete its following files: **app/db.sqlite3** and in the **app/fake_csv/migrations** folder,<br> 
+   delete all migrations except **__init__.py**. Clean the **app/media** folder._
+
 2. By default, the program works with threads. To use Celery you need to uncomment the code in the following files:
    ```
    app/__init__.py
@@ -98,6 +102,6 @@ You will see the status changed to "**Ready**" and a link to **download** data.
     ```shell
     docker compose stop
     ```
-<br>
+## Using the app
 The app is available at the [link](http://127.0.0.1:8000/)<br>
 To monitor tasks, **Flower** is used, available at [link](http://127.0.0.1:5555/)
