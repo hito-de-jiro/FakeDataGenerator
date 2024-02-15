@@ -54,7 +54,7 @@
                     </div>
                 </div>
                 <div class="col-md-auto justify-content-end">
-                    <button type="submit" class="btn btn-success">Generate data</button>
+                    <button id="generate-data-button" type="submit" class="btn btn-success">Generate data</button>
                 </div>
             </form>
 
@@ -103,22 +103,16 @@
         if (!dataStatuses.length) console.log('Statuses is empty');
 
         let updateStatus = function (datasetID, dataStatus, dataLink) {
-            console.log("Inside interval " + datasetID)
             $.ajax({
                 url: 'ajax/' + datasetID,
                 type: "GET",
                 dataType: "json",
                 success: (data) => {
                     if (String(data['context']) !== 'Ready') {
-                        console.log('not ready ' + datasetID);
-                        console.log('not Ready --' + data['context']);
                         setTimeout(updateStatus, 200, datasetID, dataStatus, dataLink);
                     } else {
                         dataStatus.innerText = data['context'];
                         dataLink.style = null;
-                        console.log('ready ' + datasetID);
-
-                        console.log('Clear interval ' + datasetID);
                     }
                 },
                 error: (error) => {
@@ -127,21 +121,19 @@
             });
         }
 
+        let generateButton = document.getElementById('generate-data-button');
+        generateButton.addEventListener('click', updateStatus);
+
         let timer;
         for (let dataStatus of dataStatuses) {
             let datasetID = dataStatus.className.split('-')[2];
-            console.log("Id " + datasetID)
             let dataLink = document.getElementById('link-id-' + datasetID)
             if (String(dataStatus.innerHTML) === 'Ready') {
-                console.log("Skip interval " + datasetID)
                 dataLink.style = null;
             } else {
-                console.log("Before interval " + datasetID)
                 timer = setTimeout(updateStatus, 1000, datasetID, dataStatus, dataLink);
-                console.log("After interval " + datasetID)
             }
         }
-        console.log('Complete FOR')
 
     </script>
 {% endblock %}
