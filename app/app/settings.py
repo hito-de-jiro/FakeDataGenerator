@@ -72,6 +72,7 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+#  to use Celery it is necessary to comment
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -79,7 +80,7 @@ DATABASES = {
     }
 }
 
-# to use Docker it is necessary to uncomment
+# to use Celery it is necessary to uncomment
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
