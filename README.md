@@ -20,7 +20,7 @@ virtualenv venv
 ```
 Activate venv (windows).
 ```shell
-venv\Scripts\activate.bat
+venv\Scripts\activate
 ```
 ## Build
 1. Install dependencies of project.
