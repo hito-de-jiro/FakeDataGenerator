@@ -54,7 +54,7 @@
                     </div>
                 </div>
                 <div class="col-md-auto justify-content-end">
-                    <button id="generate-data-button" type="submit" class="btn btn-success">Generate data</button>
+                    <button id="generate-data-button" type="submit" class="btn btn-success" onclick="">Generate data</button>
                 </div>
             </form>
 
@@ -76,7 +76,7 @@
                     </thead>
                     {% for dataset in datasets %}
                         <tbody>
-                        <tr>
+                        <tr id="table-row-">
                             <th scope="row">{{ forloop.counter }}</th>
                             <td>{{ dataset.created }}</td>
                             <td>
@@ -121,9 +121,6 @@
             });
         }
 
-        let generateButton = document.getElementById('generate-data-button');
-        generateButton.addEventListener('click', updateStatus);
-
         let timer;
         for (let dataStatus of dataStatuses) {
             let datasetID = dataStatus.className.split('-')[2];
@@ -134,6 +131,13 @@
                 timer = setTimeout(updateStatus, 1000, datasetID, dataStatus, dataLink);
             }
         }
+
+        let generateButton = document.getElementById('generate-data-button');
+        generateButton.addEventListener('click', function () {
+            console.log('Hi there!');
+        });
+
+
 
     </script>
 {% endblock %}
