@@ -5,7 +5,7 @@ import os
 from django.conf import settings
 from faker import Faker
 
-# from app.celery import app  # comment for threading
+# from app.celery import app  # to use Celery it is necessary to uncomment
 from fake_csv.models import DatasetModel
 
 
@@ -68,7 +68,7 @@ def set_status(file_name, pk_dataset, status):
     data.save()
 
 
-# @app.task()  # comment for threading
+# @app.task()  # to use Celery it is necessary to uncomment
 def run_process(
         pk_dataset: int,
         num_rows: int,
