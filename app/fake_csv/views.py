@@ -112,13 +112,13 @@ def detail_schema(request, pk):
         return reverse("schema_list")
 
 
-def status_dataset(request, pk, id):
+def status_dataset(request):
     """Get dataset status."""
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-
+    pk = request.path.split('/ajax/')[1]
     if is_ajax:
         if request.method == "GET":
-            dataset = DatasetModel.objects.get(id=id)
+            dataset = DatasetModel.objects.get(id=pk)
             return JsonResponse({'context': dataset.status})
 
         return JsonResponse({'status': 'Invalid request'}, status=400)
