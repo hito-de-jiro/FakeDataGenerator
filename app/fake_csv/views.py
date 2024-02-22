@@ -113,7 +113,7 @@ def detail_schema(request, pk):
 
 
 def detail_datasets(request, pk):
-    """Data for datasets tables."""
+    """Data for the dataset table."""
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     if is_ajax:
@@ -122,6 +122,10 @@ def detail_datasets(request, pk):
             datasets = DatasetModel.objects.filter(schema_id=parent_obj.id)
             data = serializers.serialize('json', datasets, fields=('pk', 'created', 'status', 'file'))
             return JsonResponse({'data': data}, safe=False)
+
+        return JsonResponse({'status': 'Invalid request!'}, status=400)
+    else:
+        return HttpResponseBadRequest('Invalid request!')
 
 
 def status_dataset(request):
