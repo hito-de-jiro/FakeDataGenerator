@@ -4,6 +4,7 @@ from datetime import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core import serializers
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
@@ -95,7 +96,6 @@ class SchemaDeleteView(LoginRequiredMixin, DeleteView):
 @login_required
 def detail_schema(request, pk):
     if request.method == 'GET':
-        # do fix double request
         parent_obj = get_object_or_404(SchemaModel, pk=pk)
         parent_id = parent_obj.id
         parent_form = SchemaForm(instance=parent_obj)
@@ -112,6 +112,18 @@ def detail_schema(request, pk):
         return reverse("schema_list")
 
 
+def detail_datasets(request, pk):
+    """Data for datasets tables."""
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    if is_ajax:
+        if request.method == 'GET':
+            parent_obj = get_object_or_404(SchemaModel, pk=pk)
+            datasets = DatasetModel.objects.filter(schema_id=parent_obj.id)
+            data = serializers.serialize('json', datasets, fields=('pk', 'created', 'status', 'file'))
+            return JsonResponse({'data': data}, safe=False)
+
+
 def status_dataset(request):
     """Get dataset status."""
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -119,7 +131,12 @@ def status_dataset(request):
     if is_ajax:
         if request.method == "GET":
             dataset = DatasetModel.objects.get(id=pk)
-            return JsonResponse({'context': dataset.status})
+            return JsonResponse({
+                'dataset_id': dataset.id,
+                'dataset_created': dataset.created,
+                'dataset_status': dataset.status,
+                'dataset_file': dataset.file,
+            })
 
         return JsonResponse({'status': 'Invalid request'}, status=400)
     else:
