@@ -50,11 +50,12 @@
                 <div class="form-group row">
                     <div class="col col-lg-4 form-check">
                         <label for="rows">Rows:</label>
-                        <input type="number" required min="0" id="rows" name="rows">
+                        <input type="number" required min="0" id="rows" name="rows" autofocus>
                     </div>
                 </div>
                 <div class="col-md-auto justify-content-end">
-                    <button id="generate-data-button" type="submit" class="btn btn-success" onclick="">Generate data</button>
+                    <button id="generate-data-button" type="submit" class="btn btn-success" onclick="">Generate data
+                    </button>
                 </div>
             </form>
 
@@ -64,7 +65,7 @@
     <div class="table-container">
         <div class="bd-example-snippet bd-code-snippet">
             <div class="bd-example">
-                <table class="table table-sm table-bordered" id="table-datasets">
+                <table id="datasets-table" class="table table-sm table-bordered">
                     <caption>List of created datasets.</caption>
                     <thead>
                     <tr>
@@ -75,8 +76,9 @@
                     </tr>
                     </thead>
                     {% for dataset in datasets %}
-                        <tbody>
-                        <tr id="table-row-">
+
+                        <tbody id="dataset-row-">
+                        <tr>
                             <th scope="row">{{ forloop.counter }}</th>
                             <td>{{ dataset.created }}</td>
                             <td>
@@ -91,6 +93,7 @@
                             </td>
                         </tr>
                         </tbody>
+
                     {% endfor %}
                 </table>
             </div>
@@ -108,10 +111,10 @@
                 type: "GET",
                 dataType: "json",
                 success: (data) => {
-                    if (String(data['context']) !== 'Ready') {
+                    if (String(data['dataset_status']) !== 'Ready') {
                         setTimeout(updateStatus, 200, datasetID, dataStatus, dataLink);
                     } else {
-                        dataStatus.innerText = data['context'];
+                        dataStatus.innerText = data['dataset_status'];
                         dataLink.style = null;
                     }
                 },
@@ -133,9 +136,25 @@
         }
 
         let generateButton = document.getElementById('generate-data-button');
-        generateButton.addEventListener('click', function () {
-            console.log('Hi there!');
-        });
+
+
+        let datasetTable = function () {
+            $.ajax({
+                url: '/schemas/' + {{ form.instance.id }},
+                type: "GET",
+                dataType: "json",
+                success: (data) => {
+                    console.log(data)
+                    console.log(1111111)
+
+                },
+                error: (error) => {
+                    console.log(error);
+                },
+            });
+        }
+
+        generateButton.addEventListener('click', datasetTable);
 
 
 
