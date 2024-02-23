@@ -75,10 +75,10 @@
                         <th scope="col">Action</th>
                     </tr>
                     </thead>
-                    {% for dataset in datasets %}
 
-                        <tbody id="dataset-row-">
-                        <tr>
+                    {% for dataset in datasets %}
+                        <tbody>
+                        <tr id="dataset-row">
                             <th scope="row">{{ forloop.counter }}</th>
                             <td>{{ dataset.created }}</td>
                             <td>
@@ -93,12 +93,26 @@
                             </td>
                         </tr>
                         </tbody>
-
                     {% endfor %}
+
                 </table>
             </div>
         </div>
     </div>
+
+    <table class="table">
+        <caption>List of created datasets.</caption>
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Created</th>
+            <th scope="col">Status</th>
+            <th scope="col">Action</th>
+        </tr>
+        </thead>
+        <tbody id="datatable"></tbody>
+    </table>
+    <button type="submit" class="btn btn-success" onclick="">Tyc` me!</button>
 
     <script>
 
@@ -135,17 +149,24 @@
             }
         }
 
-        let generateButton = document.getElementById('generate-data-button');
-
-
         let datasetTable = function () {
             $.ajax({
                 url: '/schemas/' + {{ form.instance.id }},
                 type: "GET",
                 dataType: "json",
                 success: (data) => {
-                    console.log(data)
-                    console.log(1111111)
+                    {#console.log(data);#}
+
+
+                    {#let v = JSON.stringify(Object.values(data));#}
+                    let v = Object.values(data);
+                    {#console.log(v);#}
+                    let k = Object.keys(data);
+                    {#v.forEach((element) => console.log(element));#}
+                    for (const [key, value] of Object.entries(data)) {
+                        console.log(`${key}: --- ${value}`);
+
+                    }
 
                 },
                 error: (error) => {
@@ -154,9 +175,51 @@
             });
         }
 
+        let generateButton = document.getElementById('generate-data-button');
         generateButton.addEventListener('click', datasetTable);
 
+        let datasetRow = document.getElementById('dataset-row');
 
+        let draftData = [
+            {
+                "model": "fake_csv.datasetmodel",
+                "pk": 72,
+                "fields": {
+                    "created": "2024-02-22T15:19:33.453Z",
+                    "status": "Ready",
+                    "file": "A_22022024_171933_451.csv"
+                }
+            },
+            {
+                "model": "fake_csv.datasetmodel",
+                "pk": 73,
+                "fields": {
+                    "created": "2024-02-23T07:09:06.735Z",
+                    "status": "Ready",
+                    "file": "A_23022024_090906_733.csv"
+                }
+            },
+            {
+                "model": "fake_csv.datasetmodel",
+                "pk": 73,
+                "fields": {
+                    "created": "2024-02-23T07:09:06.735Z",
+                    "status": "Ready",
+                    "file": "A_23022024_090906_733.csv"
+                }
+            }
+        ]
+        let root = document.getElementById('datatable');
+        let numDataset = 1;
+        draftData.forEach(element => root.insertAdjacentHTML('beforebegin', `<tr><td>${numDataset}</td><td>${element.fields.created}</td><td>${element.fields.status}</td><td>${element.fields.file}</td></tr>`, numDataset++));
+
+        function createRow() {
+            let table = document.getElementById('datatable');
+            while (table.firstChild) {
+                table.removeChild(table.firstChild)
+            }
+
+        }
 
     </script>
 {% endblock %}
