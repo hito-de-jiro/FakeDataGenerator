@@ -112,7 +112,7 @@
         </thead>
         <tbody id="datatable"></tbody>
     </table>
-    <button type="submit" class="btn btn-success" onclick="">Tyc` me!</button>
+    <button id="tyc" type="submit" class="btn btn-success" onclick="">Tyc` me!</button>
 
     <script>
 
@@ -156,8 +156,6 @@
                 dataType: "json",
                 success: (data) => {
                     {#console.log(data);#}
-
-
                     {#let v = JSON.stringify(Object.values(data));#}
                     let v = Object.values(data);
                     {#console.log(v);#}
@@ -177,47 +175,31 @@
 
         let generateButton = document.getElementById('generate-data-button');
         generateButton.addEventListener('click', datasetTable);
-
         let datasetRow = document.getElementById('dataset-row');
 
-        let draftData = [
-            {
-                "model": "fake_csv.datasetmodel",
-                "pk": 72,
-                "fields": {
-                    "created": "2024-02-22T15:19:33.453Z",
-                    "status": "Ready",
-                    "file": "A_22022024_171933_451.csv"
-                }
-            },
-            {
-                "model": "fake_csv.datasetmodel",
-                "pk": 73,
-                "fields": {
-                    "created": "2024-02-23T07:09:06.735Z",
-                    "status": "Ready",
-                    "file": "A_23022024_090906_733.csv"
-                }
-            },
-            {
-                "model": "fake_csv.datasetmodel",
-                "pk": 73,
-                "fields": {
-                    "created": "2024-02-23T07:09:06.735Z",
-                    "status": "Ready",
-                    "file": "A_23022024_090906_733.csv"
-                }
-            }
-        ]
-        let root = document.getElementById('datatable');
-        let numDataset = 1;
-        draftData.forEach(element => root.insertAdjacentHTML('beforebegin', `<tr><td>${numDataset}</td><td>${element.fields.created}</td><td>${element.fields.status}</td><td>${element.fields.file}</td></tr>`, numDataset++));
+
+        let tableBody = document.getElementById('datatable');
+        let testButton = document.getElementById('tyc');
+        testButton.addEventListener('click', createRow);
 
         function createRow() {
-            let table = document.getElementById('datatable');
-            while (table.firstChild) {
-                table.removeChild(table.firstChild)
-            }
+            console.log('TYC!')
+            let tr = document.createElement("TR");
+
+            let thNum = document.createElement("TH");
+            thNum.innerText = '1'
+
+            let tdCreate = document.createElement("TD");
+            tdCreate.innerText = '20-12-20021 12:30';
+
+            let tdStatus = document.createElement("TD");
+            tdStatus.innerText = 'Ready';
+
+            let tdLoad = document.createElement("TD");
+            tdLoad.innerText = 'Download'
+
+            tr.append(thNum, tdCreate, tdStatus, tdLoad);
+            tableBody.appendChild(tr);
 
         }
 
