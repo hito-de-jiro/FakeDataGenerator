@@ -60,8 +60,8 @@ class ColumnModel(models.Model):
 
 class DatasetModel(models.Model):
     created = models.DateTimeField(auto_now_add=True, verbose_name='Created')
-    status = models.CharField(max_length=45, null=True, verbose_name='Status')
-    file = models.CharField(default='File does not exist.', max_length=100, null=True, verbose_name='path_to_file')
+    status = models.CharField(max_length=45, default='Wait', verbose_name='Status')  # set default status 'Wait'
+    file = models.CharField(default='File does not exist.', max_length=100, verbose_name='path_to_file')
     schema = models.ForeignKey(SchemaModel, on_delete=models.CASCADE, null=True)
 
     class Meta:
