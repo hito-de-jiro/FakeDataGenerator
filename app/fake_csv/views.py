@@ -1,12 +1,13 @@
 # fake_csv/views.py
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core import serializers
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
+from django.template.defaultfilters import format
 from django.urls import reverse
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, DeleteView
@@ -112,22 +113,7 @@ def detail_schema(request, pk):
         return reverse("schema_list")
 
 
-def detail_datasets(request, pk):
-    """Data for the dataset table."""
-    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-
-    if is_ajax:
-        if request.method == 'GET':
-            parent_obj = get_object_or_404(SchemaModel, pk=pk)
-            datasets = DatasetModel.objects.filter(schema_id=parent_obj.id)
-            data = serializers.serialize('json', datasets, fields=('pk', 'created', 'status', 'file'))
-            return JsonResponse({'data': data}, safe=False)
-
-        return JsonResponse({'status': 'Invalid request!'}, status=400)
-    else:
-        return HttpResponseBadRequest('Invalid request!')
-
-
+@login_required
 def status_dataset(request):
     """Get dataset status."""
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -136,10 +122,7 @@ def status_dataset(request):
         if request.method == "GET":
             dataset = DatasetModel.objects.get(id=pk)
             return JsonResponse({
-                'dataset_id': dataset.id,
-                'dataset_created': dataset.created,
                 'dataset_status': dataset.status,
-                'dataset_file': dataset.file,
             })
 
         return JsonResponse({'status': 'Invalid request'}, status=400)
@@ -148,34 +131,40 @@ def status_dataset(request):
 
 
 @login_required
-def create_dataset(request, pk):
-    """Create dataset."""
-    now = datetime.now().strftime("%d%m%Y_%H%M%S_%f")[:-3]
-    parent_obj = get_object_or_404(SchemaModel, pk=pk)
-    parent_id = parent_obj.id
-    columns = ColumnModel.objects.filter(schema_id=parent_id)
+def create_dataset_ajax(request, pk):
+    """Create ajax dataset."""
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == "POST":
+            parent_obj = get_object_or_404(SchemaModel, pk=pk)
+            num_rows = request.POST['rows']
 
-    num_rows = request.POST['rows']
-    data_dict = {column.name: [column.type, column.range_from, column.range_to] for column in columns}
-    file_name = f'{parent_obj.name}_{now}.csv'
-    column_separator = parent_obj.column_separator
-    string_character = parent_obj.string_character
+            # new dataset model
+            now = datetime.now().strftime("%d%m%Y_%H%M%S")
+            new_dataset = DatasetModel(schema_id=parent_obj.id, status='Wait', file=f'{parent_obj.name}_{now}.csv')
+            new_dataset.save()
 
-    # set status -- Wait
-    data = DatasetModel(schema_id=parent_id)
-    data.status = 'Wait'
-    data.save()
-    pk_dataset = data.id
+            # run create_dataset_task
+            columns = ColumnModel.objects.filter(schema_id=parent_obj.id)
+            create_dataset_task(
+                pk_dataset=new_dataset.id,
+                num_rows=num_rows,
+                data_dict={column.name: [column.type, column.range_from, column.range_to] for column in columns},
+                file_name=new_dataset.file,
+                column_separator=parent_obj.column_separator,
+                string_character=parent_obj.string_character
+            )
+            # return data in json format
+            return JsonResponse({
+                'dataset_id': new_dataset.id,
+                'dataset_created': format(new_dataset.created, format_string=settings.DATETIME_FORMAT),
+                'dataset_status': new_dataset.status,
+                'dataset_file': new_dataset.file,
+            })
 
-    create_dataset_task(
-        pk_dataset,
-        num_rows,
-        data_dict,
-        file_name,
-        column_separator,
-        string_character)
-
-    return redirect('schema_detail', pk=pk)
+        return JsonResponse({'status': 'Invalid request'}, status=400)
+    else:
+        return HttpResponseBadRequest('Invalid request')
 
 
 def user_login(request):

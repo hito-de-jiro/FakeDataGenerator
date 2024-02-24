@@ -7,7 +7,8 @@ from .views import (
     SchemaDeleteView,
     update_schema,
     detail_schema,
-    create_dataset, status_dataset, detail_datasets,
+    status_dataset,
+    create_dataset_ajax,
 )
 
 urlpatterns = [
@@ -16,8 +17,7 @@ urlpatterns = [
     path('schemas/<int:pk>/update', update_schema, name='schema_edit'),
     path('schemas/<int:pk>/delete', SchemaDeleteView.as_view(), name='schema_delete'),
     path('schemas/<int:pk>/detail', detail_schema, name='schema_detail'),
-    path('schemas/<int:pk>', detail_datasets, name='table_detail'),
+    path('schemas/<int:pk>/', create_dataset_ajax, name='create_dataset_ajax'),
     re_path(r'schemas/[\d]*/ajax/[\d]*', status_dataset, name='ajax_detail'),
-    path('schemas/<int:pk>/dataset', create_dataset, name='create_dataset'),
     path('', user_login, name='login'),
 ]

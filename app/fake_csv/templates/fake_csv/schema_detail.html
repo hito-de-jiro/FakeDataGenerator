@@ -12,8 +12,6 @@
         </div>
     </div>
     <div class="table-container">
-        <div class="bd-example-snippet bd-code-snippet">
-            <div class="bd-example">
                 <table class="table table-sm table-bordered">
                     <caption>Schema that is ready to create datasets. To create dataset, enter the required number of
                         records and click "Create data".
@@ -35,98 +33,76 @@
                         </tbody>
                     {% endfor %}
                 </table>
-            </div>
-        </div>
     </div>
-
     <div class="container my-4">
         <div class="row">
             <div class="col">
                 <h2>Data sets</h2>
             </div>
             <br>
-            <form action="{% url 'create_dataset' form.instance.id %}" method="post">
+            <form action="{% url 'create_dataset_ajax' form.instance.id %}" method="post"
+                  onsubmit="createDataset(event, this)">
                 {% csrf_token %}
                 <div class="form-group row">
                     <div class="col col-lg-4 form-check">
                         <label for="rows">Rows:</label>
-                        <input type="number" required min="0" id="rows" name="rows" autofocus>
+                        <input type="number" required min="0" id="rows" name="rows">
                     </div>
                 </div>
                 <div class="col-md-auto justify-content-end">
-                    <button id="generate-data-button" type="submit" class="btn btn-success" onclick="">Generate data
+                    <button id="generate-data-button" type="submit" class="btn btn-success">Generate data
                     </button>
                 </div>
             </form>
-
         </div>
     </div>
     <br>
     <div class="table-container">
-        <div class="bd-example-snippet bd-code-snippet">
-            <div class="bd-example">
-                <table id="datasets-table" class="table table-sm table-bordered">
-                    <caption>List of created datasets.</caption>
-                    <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Created</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Action</th>
-                    </tr>
-                    </thead>
-
-                    {% for dataset in datasets %}
-                        <tbody>
-                        <tr id="dataset-row">
-                            <th scope="row">{{ forloop.counter }}</th>
-                            <td>{{ dataset.created }}</td>
-                            <td>
+            <table id="datasets-table" class="table table-bordered">
+                <caption>List of created datasets.</caption>
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Created</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for dataset in datasets %}
+                    <tr id="dataset-row">
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ dataset.created }}</td>
+                        <td>
                                 <span id="status-{{ dataset.id }}"
                                       class="status data-status-{{ dataset.id }}">{{ dataset.status }}</span>
-                            </td>
-                            <td>
-                                <a class="text-primary"
-                                   id="link-id-{{ dataset.id }}"
-                                   href="{{ MEDIA_URL }}{{ dataset.file }}"
-                                   style="display: none;">Download</a>
-                            </td>
-                        </tr>
-                        </tbody>
-                    {% endfor %}
-
-                </table>
-            </div>
-        </div>
+                        </td>
+                        <td>
+                            <a class="text-primary"
+                               id="link-id-{{ dataset.id }}"
+                               href="{{ MEDIA_URL }}{{ dataset.file }}"
+                               style="display: none;">Download</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
     </div>
-
-    <table class="table">
-        <caption>List of created datasets.</caption>
-        <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Created</th>
-            <th scope="col">Status</th>
-            <th scope="col">Action</th>
-        </tr>
-        </thead>
-        <tbody id="datatable"></tbody>
-    </table>
-    <button id="tyc" type="submit" class="btn btn-success" onclick="">Tyc` me!</button>
 
     <script>
 
         const dataStatuses = document.getElementsByClassName('status');
         if (!dataStatuses.length) console.log('Statuses is empty');
 
-        let updateStatus = function (datasetID, dataStatus, dataLink) {
+        // updating the status of a running task
+        function updateStatus(datasetID, dataStatus, dataLink) {
             $.ajax({
                 url: 'ajax/' + datasetID,
                 type: "GET",
                 dataType: "json",
                 success: (data) => {
                     if (String(data['dataset_status']) !== 'Ready') {
-                        setTimeout(updateStatus, 200, datasetID, dataStatus, dataLink);
+                        setTimeout(updateStatus, 1000, datasetID, dataStatus, dataLink);
                     } else {
                         dataStatus.innerText = data['dataset_status'];
                         dataLink.style = null;
@@ -138,69 +114,54 @@
             });
         }
 
-        let timer;
+        // checking the status of all datasets
         for (let dataStatus of dataStatuses) {
             let datasetID = dataStatus.className.split('-')[2];
             let dataLink = document.getElementById('link-id-' + datasetID)
             if (String(dataStatus.innerHTML) === 'Ready') {
                 dataLink.style = null;
             } else {
-                timer = setTimeout(updateStatus, 1000, datasetID, dataStatus, dataLink);
+                setTimeout(updateStatus, 1000, datasetID, dataStatus, dataLink);
             }
         }
 
-        let datasetTable = function () {
-            $.ajax({
-                url: '/schemas/' + {{ form.instance.id }},
-                type: "GET",
-                dataType: "json",
-                success: (data) => {
-                    {#console.log(data);#}
-                    {#let v = JSON.stringify(Object.values(data));#}
-                    let v = Object.values(data);
-                    {#console.log(v);#}
-                    let k = Object.keys(data);
-                    {#v.forEach((element) => console.log(element));#}
-                    for (const [key, value] of Object.entries(data)) {
-                        console.log(`${key}: --- ${value}`);
+        //adding an ajax task to the form
+        function createDataset(e, form) {
+            fetch(form.action, {
+                method: "POST",
+                headers: {'X-Requested-With': 'XMLHttpRequest'},
+                body: new FormData(form),
+            }).then((data) => data.json()).then((data) => {
 
-                    }
+                let tableBody = document.getElementById('datasets-table').getElementsByTagName('tbody')[0];
+                let tr = document.createElement("TR");
 
-                },
-                error: (error) => {
-                    console.log(error);
-                },
-            });
-        }
+                let thNum = document.createElement("TH");
+                thNum.innerText = String(tableBody.childElementCount + 1);
 
-        let generateButton = document.getElementById('generate-data-button');
-        generateButton.addEventListener('click', datasetTable);
-        let datasetRow = document.getElementById('dataset-row');
+                let tdCreate = document.createElement("TD");
+                tdCreate.innerText = data['dataset_created'];
 
+                let tdStatus = document.createElement("TD");
+                tdStatus.innerText = data['dataset_status'];
 
-        let tableBody = document.getElementById('datatable');
-        let testButton = document.getElementById('tyc');
-        testButton.addEventListener('click', createRow);
+                let tdLink = document.createElement("TD");
+                let aLink = document.createElement("A");
+                tdLink.appendChild(aLink)
+                aLink.innerText = 'Download';
+                aLink.href = "{{ MEDIA_URL }}" + data['dataset_file'];
+                aLink.style = "display: none;";
+                aLink.className = "text-primary";
 
-        function createRow() {
-            console.log('TYC!')
-            let tr = document.createElement("TR");
+                tr.append(thNum, tdCreate, tdStatus, tdLink);
+                tableBody.appendChild(tr);
 
-            let thNum = document.createElement("TH");
-            thNum.innerText = '1'
-
-            let tdCreate = document.createElement("TD");
-            tdCreate.innerText = '20-12-20021 12:30';
-
-            let tdStatus = document.createElement("TD");
-            tdStatus.innerText = 'Ready';
-
-            let tdLoad = document.createElement("TD");
-            tdLoad.innerText = 'Download'
-
-            tr.append(thNum, tdCreate, tdStatus, tdLoad);
-            tableBody.appendChild(tr);
-
+                setTimeout(updateStatus, 2000, data['dataset_id'], tdStatus, aLink);
+            }).catch((error) => {
+                console.log(error);
+            })
+            form.reset();
+            e.preventDefault()
         }
 
     </script>
